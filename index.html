@@ -1,292 +1,54 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-  <meta name="theme-color" content="#0f172a"/>
-  <title>Mis Ventas — PWA</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <style>
-    :root{--bg:#eef0f4;--surface:#ffffff;--text:#0b1220;--muted:#687182;--border:#E5E7EB;--pill:#0f172a;--pillText:#ffffff;--soft:#f3f4f6;--radius:16px;--shadow:0 6px 22px rgba(2,6,23,.06)}
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial,sans-serif;color:var(--text)}
-    header{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border)}
-    .wrap{max-width:980px;margin:0 auto;padding:22px 16px 24px}
-    .header-row{display:flex;align-items:center;gap:12px;justify-content:space-between}
-    .logo-title{font-size:30px;font-weight:900;letter-spacing:.2px}
-    .avatar{width:40px;height:40px;border-radius:999px;overflow:hidden;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:#111;color:#fff;font-weight:800;cursor:pointer;position:relative}
-    .avatar-menu{position:absolute;top:46px;right:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:8px;display:none;z-index:70}
-    .avatar-menu button{width:160px;border:none;background:#fff;padding:10px;border-radius:10px;text-align:left;cursor:pointer}
-    .avatar-menu button:hover{background:#f3f4f6}
-    nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px}
-    .tab{appearance:none;border:1px solid var(--border);background:#fff;color:var(--text);padding:16px 0;border-radius:999px;font-weight:800;text-align:center;font-size:16px}
-    .tab.active{background:var(--pill);color:var(--pillText);border-color:var(--pill)}
-    .container{max-width:980px;margin:0 auto;padding:12px 16px}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:16px}
-    .btn{appearance:none;border:1px solid var(--pill);background:var(--pill);color:#fff;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer}
-    .btn.ghost{border-color:#D1D5DB;background:#f3f4f6;color:#111}
-    .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:700px;margin:0 auto}
-    .list{display:flex;flex-direction:column;gap:10px}
-    .list-item{display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:14px;background:#fff;box-shadow:var(--shadow)}
-    .title-sm{font-weight:700}.muted{color:var(--muted)}.right{text-align:right}.hidden{display:none !important}
-    .cart{min-height:60px}
-    .cart-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
-    .qty{display:flex;align-items:center;gap:10px;justify-content:center}
-    .qty button{border:1px solid var(--border);background:#fff;border-radius:999px;width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer}
-    .picker{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;background:#fff;padding:12px;cursor:pointer}
-    .sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top-left-radius:16px;border-top-right-radius:16px;max-height:70vh;transform:translateY(100%);transition:.25s;box-shadow:0 -12px 30px rgba(0,0,0,.2);border:1px solid var(--border);}
-    .sheet.open{transform:translateY(0)}
-    .sheet .handle{width:50px;height:6px;background:#e5e7eb;border-radius:999px;margin:10px auto}
-    .sheet .body{padding:8px 14px 16px;overflow:auto;max-height:60vh}
-    .sheet .item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
-    .center{max-width:420px;margin:28px auto}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Mis Ventas</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+  :root {
+    --bg: #ffffff;
+    --text: #000000;
+    --primary: #0d6efd;
+    --secondary: #f0f0f0;
+  }
+  .dark {
+    --bg: #121212;
+    --text: #ffffff;
+    --primary: #0d6efd;
+    --secondary: #1e1e1e;
+  }
+  header { padding: 20px; text-align: center; font-size: 2em; font-weight: bold; }
+  .tabs { display: flex; justify-content: space-around; padding: 10px; background: var(--secondary); margin-top: 20px; }
+  .tab { flex: 1; margin: 0 5px; padding: 15px; text-align: center; background: var(--primary); color: white; border-radius: 8px; font-size: 1.2em; }
+  .avatar { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
+  .menu { position: absolute; top: 70px; right: 20px; background: var(--secondary); border-radius: 8px; padding: 10px; display: none; }
+  .menu button { display: block; width: 100%; margin: 5px 0; }
+</style>
 </head>
 <body>
-  <header id="appHeader" class="hidden">
-    <div class="wrap">
-      <div class="header-row">
-        <div class="logo-title">Mis Ventas</div>
-        <div class="avatar" id="avatar" onclick="toggleAvatarMenu()"><span id="avatarText">?</span>
-          <div class="avatar-menu" id="avatarMenu"><button onclick="logout()">Cerrar sesión</button></div>
-        </div>
-      </div>
-      <nav>
-        <button class="tab active" id="tab-vender" onclick="showView('vender')">Vender</button>
-        <button class="tab" id="tab-historial" onclick="showView('historial')">Historial</button>
-        <button class="tab" id="tab-productos" onclick="showView('productos')">Productos</button>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container">
-    <section id="view-auth" class="card center">
-      <h2 style="margin:6px 0 10px;">Bienvenido(a)</h2>
-      <p class="muted" style="margin-top:0">Inicia sesión o regístrate para usar la app.</p>
-      <div id="loginForm">
-        <label>Correo</label><input id="login-email" type="email" placeholder="tu@email.com">
-        <label style="margin-top:8px;">Contraseña</label><input id="login-pass" type="password" placeholder="******">
-        <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px">
-          <button class="btn" onclick="doLogin()">Entrar</button>
-          <button class="btn ghost" onclick="switchAuth()">Registrarse</button>
-        </div>
-      </div>
-      <div id="registerForm" class="hidden">
-        <label>Nombre y Apellido</label><input id="reg-name" placeholder="Ej: Jorge Díaz">
-        <label style="margin-top:8px;">Correo</label><input id="reg-email" type="email" placeholder="tu@email.com">
-        <label style="margin-top:8px;">Contraseña</label><input id="reg-pass" type="password" placeholder="******">
-        <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px">
-          <button class="btn" onclick="doRegister()">Crear cuenta</button>
-          <button class="btn ghost" onclick="switchAuth()">Ya tengo cuenta</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-vender" class="hidden">
-      <div class="card">
-        <label>Nombre del Cliente</label><input id="cliente" placeholder="Ej: Jorge Díaz">
-      </div>
-      <div class="card">
-        <label>Seleccionar producto</label>
-        <div class="picker" onclick="openPicker()"><span id="pickerLabel">Elegir producto</span><span class="muted">▼</span></div>
-      </div>
-      <div class="card">
-        <div class="title-sm" style="margin-bottom:8px;">Carro</div>
-        <div id="carro" class="cart"><span class="muted">Sin productos aún.</span></div>
-      </div>
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>Subtotal:</span><strong id="neto">$0</strong></div>
-        <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>IVA (<span id="iva-rate">19</span>%)</span><strong id="iva">$0</strong></div>
-        <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>Total:</span><strong id="total">$0</strong></div>
-        <div class="btn-row" style="margin-top:12px;">
-          <button class="btn" onclick="compartirYGuardar()">Compartir y Guardar</button>
-          <button class="btn ghost" onclick="nuevaVenta()">Nueva Venta</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-historial" class="hidden">
-      <div id="historial" class="list"></div>
-    </section>
-
-    <section id="view-productos" class="hidden">
-      <div class="card">
-        <div class="title-sm" style="margin-bottom:8px;">IVA</div>
-        <label>IVA (%)</label><input id="iva-input" type="number" min="0" max="100" value="19">
-        <div style="margin-top:10px"><button class="btn" onclick="guardarIVA()">Guardar IVA</button></div>
-      </div>
-      <div class="card">
-        <div class="title-sm" style="margin-bottom:8px;">Nuevo producto</div>
-        <label>Nombre</label><input id="prod-nombre" placeholder="Nombre">
-        <label style="margin-top:8px;">Precio</label><input id="prod-precio" type="number" min="0" placeholder="Precio">
-        <div style="margin-top:10px"><button class="btn" onclick="agregarProducto()">Agregar</button></div>
-      </div>
-      <div class="card">
-        <div class="title-sm" style="margin-bottom:8px;">Catálogo</div>
-        <div id="catalogo" class="list"></div>
-      </div>
-    </section>
-  </main>
-
-  <div class="sheet" id="sheet"><div class="handle"></div><div class="body" id="sheetBody"></div></div>
-  <section id="printable" class="hidden"><div id="receipt" class="card"></div></section>
-
-  <script>
-    const $ = id => document.getElementById(id);
-    const fmt = new Intl.NumberFormat('es-CL',{ style:'currency', currency:'CLP', maximumFractionDigits:0 });
-
-    // Auth (local)
-    function users(){ try{return JSON.parse(localStorage.getItem('users'))||[]}catch{return[]} }
-    function saveUsers(arr){ localStorage.setItem('users', JSON.stringify(arr)); }
-    function setSession(u){ localStorage.setItem('session', JSON.stringify(u)); }
-    function getSession(){ try{return JSON.parse(localStorage.getItem('session'))}catch{return null} }
-
-    function switchAuth(){
-      $('loginForm').classList.toggle('hidden');
-      $('registerForm').classList.toggle('hidden');
-    }
-    function doRegister(){
-      const name=$('reg-name').value.trim(), email=$('reg-email').value.trim().toLowerCase(), pass=$('reg-pass').value;
-      if(!name||!email||!pass) return alert('Completa todos los campos');
-      const u=users(); if(u.some(x=>x.email===email)) return alert('Ese correo ya está registrado');
-      const user={id:crypto.randomUUID(), name, email, pass}; u.push(user); saveUsers(u); setSession({id:user.id,name:user.name,email:user.email}); bootApp();
-    }
-    function doLogin(){
-      const email=$('login-email').value.trim().toLowerCase(), pass=$('login-pass').value;
-      const u=users().find(x=>x.email===email && x.pass===pass); if(!u) return alert('Credenciales inválidas');
-      setSession({id:u.id,name:u.name,email:u.email}); bootApp();
-    }
-    function logout(){ localStorage.removeItem('session'); location.reload(); }
-
-    // Per-user store
-    function nsKey(k){ const s=getSession(); const uid=s?.id||'anon'; return uid+':'+k; }
-    const store={ get(k,def){ try{return JSON.parse(localStorage.getItem(nsKey(k)))??def}catch{return def} }, set(k,v){ localStorage.setItem(nsKey(k), JSON.stringify(v)); } };
-
-    const defaults={ iva:19, productos:[
-      {id:crypto.randomUUID(), nombre:'Aceite 1L', precio:3800},
-      {id:crypto.randomUUID(), nombre:'Arroz 1kg', precio:1500},
-      {id:crypto.randomUUID(), nombre:'Azúcar 1kg', precio:1200},
-      {id:crypto.randomUUID(), nombre:'Fideos 400g', precio:900},
-      {id:crypto.randomUUID(), nombre:'Leche 1L', precio:1100},
-    ], ventas:[], nextCorrelativo:100 };
-
-    let carro=[];
-
-    function bootApp(){
-      for(const [k,v] of Object.entries(defaults)){ if(store.get(k)==null) store.set(k,v); }
-      $('iva-rate').textContent=store.get('iva',19); $('iva-input').value=store.get('iva',19);
-      renderCatalogo(); renderPickerList(); renderCarro(); renderHistorial();
-      const s=getSession(); const initials=s?.name?.split(' ').map(x=>x[0]?.toUpperCase()).slice(0,2).join('')||'?'; $('avatarText').textContent=initials;
-      $('appHeader').classList.remove('hidden'); $('view-auth').classList.add('hidden'); showView('vender');
-      if('serviceWorker' in navigator){ navigator.serviceWorker.register('./service-worker.js'); }
-    }
-
-    function toggleAvatarMenu(){
-      const m=$('avatarMenu'); m.style.display=(m.style.display==='block'?'none':'block');
-      document.addEventListener('click', (ev)=>{ if(!ev.target.closest('#avatar')) m.style.display='none'; }, {once:true});
-    }
-
-    function showView(v){
-      ['vender','historial','productos'].forEach(x=>{ $('view-'+x).classList.toggle('hidden', x!==v); $('tab-'+x).classList.toggle('active', x===v); });
-      if(v==='historial') renderHistorial(); if(v==='productos') renderCatalogo();
-    }
-
-    // Picker bottom sheet
-    function openPicker(){ $('sheet').classList.add('open'); }
-    function closePicker(){ $('sheet').classList.remove('open'); }
-    function renderPickerList(){
-      const cont=$('sheetBody'); cont.innerHTML='';
-      const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-      for(const p of productos){
-        const row=document.createElement('div'); row.className='item';
-        row.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div><button class='btn' onclick="addFromPicker('${p.id}')">Agregar</button>`;
-        cont.appendChild(row);
-      }
-    }
-    function addFromPicker(id){ agregarAlCarro(id); closePicker(); }
-
-    function agregarAlCarro(id){
-      const prod=store.get('productos',[]).find(x=>x.id===id); if(!prod) return;
-      const ex=carro.find(x=>x.idProd===id); if(ex) ex.qty+=1; else carro.push({idProd:id,nombre:prod.nombre,precio:prod.precio,qty:1}); renderCarro();
-    }
-    function renderCarro(){
-      const cont=$('carro'); if(carro.length===0){ cont.innerHTML='<span class="muted">Sin productos aún.</span>'; updateTotals(); return; }
-      cont.innerHTML=''; for(const it of carro){
-        const row=document.createElement('div'); row.className='cart-row';
-        row.innerHTML=`<div><div class='title-sm'>${it.nombre}</div></div><div class='qty'><button onclick="decQty('${it.idProd}')">−</button><strong>${it.qty}</strong><button onclick="incQty('${it.idProd}')">+</button></div><div class='right'><strong>${fmt.format(it.precio*it.qty)}</strong></div>`;
-        cont.appendChild(row);
-      } updateTotals();
-    }
-    function incQty(id){ const it=carro.find(x=>x.idProd===id); if(!it) return; it.qty++; renderCarro(); }
-    function decQty(id){ const it=carro.find(x=>x.idProd===id); if(!it) return; it.qty--; if(it.qty<=0) carro=carro.filter(x=>x.idProd!==id); renderCarro(); }
-    function calcTotals(){ const ivaRate=store.get('iva',19); const neto=carro.reduce((s,i)=>s+i.precio*i.qty,0); const iva=Math.round(neto*ivaRate/100); const total=neto+iva; return {neto,iva,total,ivaRate}; }
-    function updateTotals(){ const t=calcTotals(); $('neto').textContent=fmt.format(t.neto); $('iva').textContent=fmt.format(t.iva); $('total').textContent=fmt.format(t.total); }
-
-    function renderVentaDetalleHTML(v){
-      const items=v.items.map(i=>`<div style="display:flex;justify-content:space-between;"><span>${i.nombre} · ${i.cantidad} x ${fmt.format(i.precio)}</span><strong>${fmt.format(i.precio*i.cantidad)}</strong></div>`).join('');
-      return `<h3 style="margin-top:0">Boleta N° ${v.correlativo}</h3>
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><div><strong>Cliente:</strong> ${v.cliente}</div><div><strong>Fecha:</strong> ${v.fecha}</div></div>
-        ${items}
-        <hr/>
-        <div style="display:flex;justify-content:space-between;"><span>Neto</span><strong>${fmt.format(v.neto)}</strong></div>
-        <div style="display:flex;justify-content:space-between;"><span>IVA (${v.ivaRate}%)</span><strong>${fmt.format(v.iva)}</strong></div>
-        <div style="display:flex;justify-content:space-between;"><span>Total</span><strong>${fmt.format(v.total)}</strong></div>
-        <p class="muted" style="font-size:12px">Documento interno, no válido como boleta SII.</p>`;
-    }
-    function htmlToPlainText(html){ const tmp=document.createElement('div'); tmp.innerHTML=html; return tmp.innerText; }
-    function generarPDFDesdeHTML(html){
-      const text=htmlToPlainText(html).split('\n'); const objects=[]; const xref=[]; const parts=[]; const addPart=s=>parts.push(s); addPart('%PDF-1.4\n');
-      function obj(s){ const off=parts.join('').length; xref.push(off); addPart(s); }
-      obj('1 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>\nendobj\n');
-      const lines=[]; lines.push('BT /F1 12 Tf 50 800 Td 0 -18 Td'); for(let i=0;i<text.length;i++){ const safe=text[i].replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)'); lines.push('('+safe+') Tj T*'); } lines.push('ET');
-      const stream=lines.join('\n'); obj('2 0 obj\n<< /Length '+stream.length+' >>\nstream\n'+stream+'\nendstream\nendobj\n');
-      obj('3 0 obj\n<< /Type /Page /Parent 4 0 R /MediaBox [0 0 595 842] /Contents 2 0 R /Resources << /Font << /F1 1 0 R >> >> >>\nendobj\n');
-      obj('4 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n');
-      obj('5 0 obj\n<< /Type /Catalog /Pages 4 0 R >>\nendobj\n');
-      const body=parts.join(''); const xrefoff=body.length; const xrefTable=['xref\n0 6\n0000000000 65535 f \n']; for(const off of xref){ xrefTable.push((String(off).padStart(10,'0'))+' 00000 n \n'); } const trailer='trailer\n<< /Size 6 /Root 5 0 R >>\nstartxref\n'+xrefoff+'\n%%EOF';
-      return new Blob([body, xrefTable.join(''), trailer], {type:'application/pdf'});
-    }
-    async function compartirYGuardar(){
-      if(carro.length===0){ alert('Agrega productos al carro.'); return; }
-      const ventas=store.get('ventas',[]); const next=store.get('nextCorrelativo',100); const correlativo=next+1;
-      const t=calcTotals(); const v={ correlativo, fecha:new Date().toISOString().slice(0,16).replace('T',' '), cliente:($('cliente').value||'Consumidor Final'), items:carro.map(i=>({nombre:i.nombre,precio:i.precio,cantidad:i.qty})), neto:t.neto, iva:t.iva, total:t.total, ivaRate:t.ivaRate };
-      ventas.push(v); store.set('ventas',ventas); store.set('nextCorrelativo',correlativo);
-      const html=renderVentaDetalleHTML(v); $('receipt').innerHTML=html;
-      const pdfBlob=generarPDFDesdeHTML(html); const file=new File([pdfBlob], `Boleta_${v.correlativo}.pdf`, {type:'application/pdf'});
-      if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], title:'Boleta', text:`Boleta N° ${v.correlativo}`}); }catch(e){} }
-      else { const url=URL.createObjectURL(file); const a=document.createElement('a'); a.href=url; a.download=file.name; a.click(); URL.revokeObjectURL(url); }
-      nuevaVenta(); renderHistorial();
-    }
-    function nuevaVenta(){ carro=[]; $('cliente').value=''; updateTotals(); renderCarro(); }
-
-    function renderHistorial(){
-      const ventas=store.get('ventas',[]).sort((a,b)=>b.correlativo-a.correlativo); const cont=$('historial'); cont.innerHTML='';
-      for(const v of ventas){
-        const div=document.createElement('div'); div.className='list-item';
-        div.innerHTML=`<div><div class='title-sm'>Boleta N° ${v.correlativo} — ${v.fecha}</div><div class='muted'>Cliente: ${v.cliente} · Total: ${fmt.format(v.total)}</div><div id='exp-${v.correlativo}' class='hidden' style='margin-top:8px;'>${renderVentaDetalleHTML(v)}</div></div><button class='btn' onclick='toggleVer(${v.correlativo})'>Ver</button>`;
-        cont.appendChild(div);
-      }
-    }
-    function toggleVer(c){ const el=$('exp-'+c); if(el) el.classList.toggle('hidden'); }
-
-    function renderCatalogo(){
-      const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre)); const cont=$('catalogo'); cont.innerHTML='';
-      for(const p of productos){
-        const li=document.createElement('div'); li.className='list-item';
-        li.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div><div><button class='btn' onclick="editarProducto('${p.id}')">Editar</button> <button class='btn ghost' onclick="eliminarProducto('${p.id}')">Eliminar</button></div>`;
-        cont.appendChild(li);
-      }
-      renderPickerList();
-    }
-    function guardarIVA(){ const val=Number($('iva-input').value||19); if(!(val>=0 && val<=100)) return alert('IVA inválido'); store.set('iva',val); $('iva-rate').textContent=val; updateTotals(); alert('IVA guardado'); }
-    function agregarProducto(){ const nombre=($('prod-nombre').value||'').trim(); const precio=Number($('prod-precio').value||'0'); if(!nombre || !(precio>=0)) return alert('Completa nombre y precio.'); const productos=store.get('productos',[]); productos.push({id:crypto.randomUUID(), nombre, precio}); store.set('productos',productos); $('prod-nombre').value=''; $('prod-precio').value=''; renderCatalogo(); }
-    function editarProducto(id){ const productos=store.get('productos',[]); const p=productos.find(x=>x.id===id); if(!p) return; const nuevo=prompt('Nuevo precio para '+p.nombre, p.precio); if(nuevo===null) return; const val=Number(nuevo); if(!(val>=0)) return alert('Precio inválido'); p.precio=val; store.set('productos',productos); renderCatalogo(); }
-    function eliminarProducto(id){ const productos=store.get('productos',[]).filter(x=>x.id!==id); store.set('productos',productos); renderCatalogo(); }
-
-    // Start
-    (function(){ const s=getSession(); if(s){ bootApp(); } else { $('view-auth').classList.remove('hidden'); } })();
-  </script>
+<header>Mis Ventas</header>
+<div class="avatar" onclick="toggleMenu()">CD</div>
+<div id="menu" class="menu">
+  <button onclick="cerrarSesion()">Cerrar sesión</button>
+  <button onclick="toggleDarkMode()">Alternar modo oscuro</button>
+</div>
+<div class="tabs">
+  <div class="tab">Vender</div>
+  <div class="tab">Historial</div>
+  <div class="tab">Productos</div>
+</div>
+<script>
+function toggleMenu() {
+  document.getElementById('menu').style.display = document.getElementById('menu').style.display === 'block' ? 'none' : 'block';
+}
+function cerrarSesion() {
+  alert('Sesión cerrada');
+}
+function toggleDarkMode() {
+  document.body.classList.toggle('dark');
+}
+</script>
 </body>
 </html>

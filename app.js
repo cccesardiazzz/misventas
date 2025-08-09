@@ -1,0 +1,1 @@
+// Lógica de login, historial, alternar modo claro/oscuro, generar PDF estilo boleta
