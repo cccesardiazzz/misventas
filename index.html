@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -12,34 +11,37 @@
       --bg:#eef0f4; --surface:#ffffff; --text:#0b1220; --muted:#687182;
       --border:#E5E7EB; --soft:#f3f4f6; --radius:16px; --shadow:0 6px 22px rgba(2,6,23,.06);
       --btn:#000000; --btnText:#ffffff; --btnBorder:#000000;
-      --green:#10a37f; --red:#e11d48;
+      --green:#10a37f; --red:#e11d48; --blue:#007BFF;
     }
     [data-theme="dark"]{
       --bg:#0b1220; --surface:#0f172a; --text:#eef0f4; --muted:#B7C1D1;
       --border:#1f2937; --soft:#111827; --shadow:0 6px 22px rgba(0,0,0,.5);
-      --btn:#007BFF; --btnText:#ffffff; --btnBorder:#007BFF;
+      --btn:var(--blue); --btnText:#ffffff; --btnBorder:var(--blue);
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial,sans-serif;color:var(--text)}
     header{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border)}
     .wrap{max-width:980px;margin:0 auto;padding:30px 16px 30px}
     .header-row{display:flex;align-items:center;gap:12px;justify-content:space-between}
-    .logo-title{font-size:40px;font-weight:900;letter-spacing:.2px}
+    .logo-title{font-size:42px;font-weight:900;letter-spacing:.2px}
     .right-actions{display:flex;gap:10px;align-items:center}
-    .circle{width:40px;height:40px;border-radius:999px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--text);font-weight:900;cursor:pointer}
+    .circle{width:40px;height:40px;border-radius:999px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--text);font-weight:900;cursor:pointer}
+    [data-theme="dark"] .circle{ border-color:#ffffff; } /* aro blanco en oscuro */
     nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
-    .btn,.tab{appearance:none;border:2px solid var(--btnBorder);background:var(--btn);color:var(--btnText);padding:12px 16px;border-radius:999px;font-weight:900;text-align:center;font-size:16px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .tab.active{filter:brightness(0.92)}
+    .btn,.tab{appearance:none;border:2px solid var(--btnBorder);background:var(--btn);color:var(--btnText);padding:12px 16px;border-radius:999px;font-weight:900;text-align:center;font-size:16px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.15s}
+    .tab.active{filter:brightness(1.12);transform:scale(1.05);border:3px solid var(--btnText)}
     .container{max-width:980px;margin:0 auto;padding:12px 16px}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
     label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:800}
     .title-sm{font-weight:800}
     input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);font-size:16px;color:var(--text)}
+    /* iOS-like datetime */
+    input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14px 16px;border-radius:14px;text-align:center;font-weight:600;letter-spacing:.3px}
     .list{display:flex;flex-direction:column;gap:10px}
     .list-item{display:flex;align-items:flex-start;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:var(--shadow)}
     .muted{color:var(--muted)}.right{text-align:right}.hidden{display:none !important}
     .picker{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:12px;cursor:pointer}
-    .cart-row{display:grid;grid-template-columns:1fr 140px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+    .cart-row{display:grid;grid-template-columns:1fr 160px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
     .qty{display:flex;align-items:center;gap:10px;justify-content:center}
     .qty button{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer}
     .sheet{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top-left-radius:16px;border-top-right-radius:16px;max-height:70vh;transform:translateY(100%);transition:.25s;box-shadow:0 -12px 30px rgba(0,0,0,.2);border:1px solid var(--border);}
@@ -47,7 +49,15 @@
     .sheet .handle{width:50px;height:6px;background:#e5e7eb;border-radius:999px;margin:10px auto}
     .sheet .body{padding:8px 14px 16px;overflow:auto;max-height:60vh}
     .sheet .item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
-    .row-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end}
+    .row-actions{display:flex;gap:12px;align-items:center;justify-content:center}
+    .link{background:none;border:none;color:#2563eb;text-decoration:underline;cursor:pointer;font-size:13px;padding:0}
+    /* Settings layout */
+    .settings-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .settings-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end}
+    .btn--small{padding:10px 14px}
+    .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:110px;height:40px}
+    .icon-share{width:20px;height:20px;display:inline-block}
+    .search{display:flex;gap:10px;align-items:center}
   </style>
 </head>
 <body>
@@ -68,19 +78,22 @@
   </header>
 
   <main class="container">
+    <!-- AUTH -->
     <section id="view-auth" class="card" style="max-width:420px;margin:28px auto">
       <h2 style="margin:6px 0 10px;">Bienvenido(a)</h2>
       <p class="muted" style="margin-top:0">Inicia sesión o regístrate para usar la app.</p>
       <div id="loginForm">
         <label>Correo</label><input id="login-email" type="email" placeholder="tu@email.com">
-        <label style="margin-top:8px;">RUT</label><input id="login-rut" placeholder="12.345.678-9">
+        <label style="margin-top:8px;">RUT</label><input id="login-rut" placeholder="12.345.678-9 (opcional)">
         <label style="margin-top:8px;">Contraseña</label><input id="login-pass" type="password" placeholder="******">
         <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px">
           <button class="btn" onclick="doLogin()">Entrar</button>
           <button class="btn" onclick="switchAuth()">Registrarse</button>
+          <button class="link" onclick="openRecover()">¿Olvidaste tu contraseña?</button>
         </div>
         <p id="login-hint" class="muted" style="font-size:12px;margin-top:8px;"></p>
       </div>
+
       <div id="registerForm" class="hidden">
         <label>Nombre y Apellido</label><input id="reg-name" placeholder="Ej: Jorge Díaz">
         <label style="margin-top:8px;">RUT</label><input id="reg-rut" placeholder="12.345.678-9">
@@ -91,8 +104,25 @@
           <button class="btn" onclick="switchAuth()">Ya tengo cuenta</button>
         </div>
       </div>
+
+      <div id="recoverForm" class="hidden">
+        <div class="title-sm" style="margin-bottom:8px;">Recuperar contraseña</div>
+        <label>Correo</label><input id="rec-email" type="email" placeholder="tu@email.com">
+        <label style="margin-top:8px;">RUT</label><input id="rec-rut" placeholder="12.345.678-9">
+        <div id="rec-step1">
+          <div style="margin-top:12px;"><button class="btn" onclick="recoverVerify()">Verificar</button></div>
+        </div>
+        <div id="rec-step2" class="hidden">
+          <label style="margin-top:8px;">Nueva contraseña</label><input id="rec-pass1" type="password" placeholder="******">
+          <label style="margin-top:8px;">Repite la contraseña</label><input id="rec-pass2" type="password" placeholder="******">
+          <div style="margin-top:12px;"><button class="btn" onclick="recoverSet()">Guardar nueva contraseña</button></div>
+        </div>
+        <div style="margin-top:12px;"><button class="link" onclick="closeRecover()">← Volver</button></div>
+        <p id="rec-hint" class="muted" style="font-size:12px;margin-top:8px;"></p>
+      </div>
     </section>
 
+    <!-- Vender -->
     <section id="view-vender" class="hidden">
       <div class="card">
         <label>Nombre del Cliente</label>
@@ -118,16 +148,22 @@
       </div>
       <div class="card">
         <div class="row-actions">
-          <button id="btnCompartir" class="btn">Compartir y Guardar</button>
-          <button id="btnNueva" class="btn">Nueva Venta</button>
+          <button id="btnCompartir" class="btn btn--small">Compartir y Guardar</button>
+          <button id="btnNueva" class="btn btn--small">Nueva Venta</button>
         </div>
       </div>
     </section>
 
+    <!-- Historial -->
     <section id="view-historial" class="hidden">
+      <div class="card">
+        <label>Buscar por N° o cliente</label>
+        <input id="buscar" placeholder="Ej: 123 o Juan" oninput="aplicarFiltro()">
+      </div>
       <div id="historial" class="list"></div>
     </section>
 
+    <!-- Productos -->
     <section id="view-productos" class="hidden">
       <div class="card">
         <div class="title-sm" style="margin-bottom:8px;">Nuevo producto</div>
@@ -141,21 +177,27 @@
       </div>
     </section>
 
+    <!-- Ajustes -->
     <section id="view-ajustes" class="hidden">
-      <div class="card">
-        <div class="title-sm" style="margin-bottom:8px;">Tema</div>
-        <div class="row-actions">
-          <button id="btn-light" class="btn" onclick="setThemeSel('light')">☀ Claro</button>
-          <button id="btn-dark" class="btn" onclick="setThemeSel('dark')">🌙 Oscuro</button>
+      <div class="card settings-row">
+        <div class="title-sm">Tema</div>
+        <div class="settings-actions">
+          <button id="btn-light" class="btn btn--small" onclick="setThemeSel('light')" aria-pressed="false">☀ Claro</button>
+          <button id="btn-dark" class="btn btn--small" onclick="setThemeSel('dark')" aria-pressed="false">🌙 Oscuro</button>
         </div>
       </div>
-      <div class="card">
-        <div class="title-sm" style="margin-bottom:8px;">IVA</div>
-        <label>IVA (%)</label><input id="iva-input" type="number" min="0" max="100" value="19">
-        <div style="margin-top:10px"><button class="btn" onclick="guardarIVA()">Guardar IVA</button></div>
+      <div class="card settings-row">
+        <div class="title-sm">IVA</div>
+        <div class="settings-actions">
+          <input id="iva-input" type="number" min="0" max="100" value="19" style="width:100px;margin-right:8px">
+          <button class="btn btn--small" onclick="guardarIVA()">Guardar IVA</button>
+        </div>
       </div>
-      <div class="card">
-        <button class="btn" onclick="logout()">Cerrar sesión</button>
+      <div class="card settings-row">
+        <div></div>
+        <div class="settings-actions">
+          <button class="btn" onclick="logout()" style="min-width:180px">Cerrar sesión</button>
+        </div>
       </div>
     </section>
   </main>
@@ -167,8 +209,9 @@
     const fmt = new Intl.NumberFormat('es-CL',{ style:'currency', currency:'CLP', maximumFractionDigits:0 });
     function applyTheme(){ const t=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme', t==='dark'?'dark':'light'); }
     function setTheme(t){ localStorage.setItem('theme', t); applyTheme(); }
-    function setThemeSel(t){ setTheme(t); ['btn-light','btn-dark'].forEach(id=>{const el=$(id); if(el) el.style.filter='none';}); const sel=t==='dark'?'btn-dark':'btn-light'; if($(sel)) $(sel).style.filter='brightness(0.92)'; }
-    applyTheme();
+    function markThemeButtons(t){ ['btn-light','btn-dark'].forEach(id=>{const el=$(id); if(!el) return; el.style.filter='none'; el.setAttribute('aria-pressed','false');}); const sel = t==='dark'?'btn-dark':'btn-light'; if($(sel)){ $(sel).style.filter='brightness(0.92)'; $(sel).setAttribute('aria-pressed','true'); } }
+    function setThemeSel(t){ setTheme(t); markThemeButtons(t); }
+    applyTheme(); markThemeButtons(localStorage.getItem('theme')||'light');
 
     const company = { nombre:"MERCADITO QUILICURA SPA", giro:"VENTA DE TODO TIPO DE ALIMENTOS", direccion:"AV. LAS TORRES SUR 191 A", comuna:"Quilicura", ciudad:"Santiago", region:"Región Metropolitana de Santiago", rut:"77.934.268-9" };
 
@@ -177,8 +220,11 @@
     function setSession(u){ localStorage.setItem('session', JSON.stringify(u)); }
     function getSession(){ try{return JSON.parse(localStorage.getItem('session'))}catch{return null} }
 
-    function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerForm').classList.toggle('hidden'); }
-    function normalizaRut(rut){ return (rut||'').replace(/\./g,'').replace(/-/g,'').trim().toUpperCase(); }
+    function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerForm').classList.toggle('hidden'); $('recoverForm').classList.add('hidden'); }
+    function openRecover(){ $('recoverForm').classList.remove('hidden'); $('loginForm').classList.add('hidden'); $('registerForm').classList.add('hidden'); }
+    function closeRecover(){ $('recoverForm').classList.add('hidden'); $('loginForm').classList.remove('hidden'); }
+    function normalizaRut(rut){ return (rut||'').replace(/\\./g,'').replace(/-/g,'').trim().toUpperCase(); }
+
     function doRegister(){
       const name=$('reg-name').value.trim();
       const rut=normalizaRut($('reg-rut').value);
@@ -186,38 +232,50 @@
       const pass=$('reg-pass').value;
       if(!name||!rut||!email||!pass) return alert('Completa todos los campos');
       const u=users();
-      if(u.some(x=>x.rut===rut)) return alert('Ese RUT ya está registrado.');
+      if(u.some(x=>(x.rut||'')===rut)) return alert('Ese RUT ya está registrado.');
+      if(u.some(x=>(x.email||'').toLowerCase()===email)) return alert('Ese correo ya está registrado.');
       const user={id:crypto.randomUUID(), name, email, pass, rut};
       u.push(user); saveUsers(u); setSession({id:user.id,name:user.name,email:user.email,rut:user.rut});
       bootApp();
     }
+
     function doLogin(){
       const email=($('login-email').value||'').trim().toLowerCase();
       const rut=normalizaRut($('login-rut').value);
       const pass=$('login-pass').value;
       const ulist = users();
-      // First try strict: email + rut + pass
-      let u = ulist.find(x=>x.email===email && x.rut===rut && x.pass===pass);
-      // Fallback legacy: email + pass (ignore RUT)
-      if(!u){
-        u = ulist.find(x=>x.email===email && x.pass===pass);
-        if(u && rut && u.rut && u.rut!==rut){
-          u = null; // if user entered a different rut than stored, don't allow
-        }
-      }
-      if(!u){
-        const hint = $('login-hint');
-        if(hint){
-          hint.textContent = 'No pudimos iniciar sesión. Verifica: correo en minúsculas, RUT sin puntos ni guión (ej: 123456789), y la contraseña. Si tu cuenta es antigua, intenta dejar el RUT vacío.';
-        }
-        alert('Credenciales inválidas');
-        return;
-      }
-      setSession({id:u.id,name:u.name,email:u.email,rut:u.rut});
-      bootApp();
+      let u = ulist.find(x=>(x.email||'').toLowerCase()===email && (x.rut||'')===rut && (x.pass||'')===pass);
+      if(!u){ u = ulist.find(x=>(x.email||'').toLowerCase()===email && (x.pass||'')===pass); }
+      if(!u){ $('login-hint').textContent='No pudimos iniciar sesión. Verifica correo, RUT y contraseña o usa "¿Olvidaste tu contraseña?"'; alert('Credenciales inválidas'); return; }
+      setSession({id:u.id,name:u.name,email:u.email,rut:u.rut}); bootApp();
     }
-    function logout(){ localStorage.removeItem('session'); location.reload(); }
 
+    // Recovery flow
+    function recoverVerify(){
+      const email = ($('rec-email').value||'').trim().toLowerCase();
+      const rut = normalizaRut($('rec-rut').value);
+      const u = users().find(x=>(x.email||'').toLowerCase()===email && (x.rut||'')===rut);
+      const hint=$('rec-hint');
+      if(!u){ hint.textContent='No encontramos una cuenta con ese correo y RUT.'; return; }
+      $('rec-step1').classList.add('hidden'); $('rec-step2').classList.remove('hidden');
+      hint.textContent='Cuenta verificada. Ingresa y confirma tu nueva contraseña.';
+    }
+    function recoverSet(){
+      const email = ($('rec-email').value||'').trim().toLowerCase();
+      const rut = normalizaRut($('rec-rut').value);
+      const pass1 = $('rec-pass1').value; const pass2 = $('rec-pass2').value;
+      const hint=$('rec-hint');
+      if(!pass1 || !pass2){ hint.textContent='Ingresa y repite la nueva contraseña.'; return; }
+      if(pass1!==pass2){ hint.textContent='Las contraseñas no coinciden.'; return; }
+      const ulist = users();
+      const idx = ulist.findIndex(x=>(x.email||'').toLowerCase()===email && (x.rut||'')===rut);
+      if(idx<0){ hint.textContent='Ocurrió un error al verificar la cuenta.'; return; }
+      ulist[idx].pass = pass1; saveUsers(ulist);
+      hint.textContent='Contraseña actualizada. Ya puedes iniciar sesión.';
+      setTimeout(()=>{ closeRecover(); }, 800);
+    }
+
+    // Namespaced storage
     function nsKey(k){ const s=getSession(); const uid=s?.id||'anon'; return uid+':'+k; }
     const store={ get(k,def){ try{return JSON.parse(localStorage.getItem(nsKey(k)))??def}catch{return def} }, set(k,v){ localStorage.setItem(nsKey(k), JSON.stringify(v)); } };
 
@@ -249,9 +307,11 @@
         const view=$('view-'+x); if(view) view.classList.toggle('hidden', x!==v);
         const tab=$('tab-'+x); if(tab) tab.classList.toggle('active', x===v);
       });
-      if(v==='historial') renderHistorial(); if(v==='productos') renderCatalogo();
+      if(v==='historial') renderHistorial();
+      if(v==='productos') renderCatalogo();
     }
 
+    // Picker
     function openPicker(){ $('sheet').classList.add('open'); }
     function closePicker(){ $('sheet').classList.remove('open'); }
     function renderPickerList(){
@@ -265,6 +325,7 @@
     }
     function addFromPicker(id){ agregarAlCarro(id); closePicker(); }
 
+    // Carro
     function agregarAlCarro(id){
       const prod=store.get('productos',[]).find(x=>x.id===id); if(!prod) return;
       const ex=carro.find(x=>x.idProd===id); if(ex) ex.qty+=1; else carro.push({idProd:id,nombre:prod.nombre,precio:prod.precio,qty:1}); renderCarro();
@@ -282,6 +343,7 @@
     function calcTotals(){ const ivaRate=store.get('iva',19); const neto=carro.reduce((s,i)=>s+i.precio*i.qty,0); const iva=Math.round(neto*ivaRate/100); const total=neto+iva; return {neto,iva,total,ivaRate}; }
     function updateTotals(){ const t=calcTotals(); $('neto').textContent=fmt.format(t.neto); $('iva').textContent=fmt.format(t.iva); $('total').textContent=fmt.format(t.total); }
 
+    // Imagen del comprobante con "N° DE PEDIDO"
     function drawReceiptToCanvas(v){
       const W=1120, H= Math.max(740, 400 + v.items.length*42);
       const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H;
@@ -296,16 +358,22 @@
       ctx.fillText('Comuna: '+company.comuna, x, y); y+=22;
       ctx.fillText('Ciudad: '+company.ciudad, x, y); y+=22;
       ctx.fillText('Región: '+company.region, x, y);
+      // Right red box
       const boxX = W-380, boxY=90, boxW=300, boxH=120;
       ctx.strokeStyle='#e74c3c'; ctx.lineWidth=3; ctx.strokeRect(boxX, boxY, boxW, boxH);
-      ctx.fillStyle=fg; ctx.font='16px Arial'; ctx.fillText('R.U.T.: '+company.rut, boxX+16, boxY+30);
-      ctx.font='bold 18px Arial'; ctx.fillText('BOLETA', boxX+16, boxY+60);
-      ctx.font='18px Arial'; ctx.fillText('N° '+v.correlativo, boxX+16, boxY+90);
+      ctx.fillStyle=fg;
+      ctx.font='16px Arial'; ctx.fillText('R.U.T.: '+company.rut, boxX+16, boxY+28);
+      ctx.font='bold 18px Arial'; ctx.fillText('N° DE PEDIDO', boxX+16, boxY+58);
+      ctx.textAlign='right'; ctx.font='bold 36px Arial'; ctx.fillText(String(v.correlativo), boxX+boxW-16, boxY+90);
+      ctx.textAlign='left';
+      // Fecha
       ctx.fillStyle=fg; ctx.font='14px Arial'; ctx.fillText('Fecha de Emisión', boxX, boxY+150);
       ctx.font='bold 14px Arial'; ctx.fillText(v.fecha, boxX+160, boxY+150);
+      // Section header
       const thY = boxY+190;
       ctx.fillStyle=green; ctx.fillRect(50, thY, W-100, 28);
       ctx.fillStyle='#ffffff'; ctx.font='bold 14px Arial'; ctx.fillText('DETALLE DEL DOCUMENTO', 60, thY+19);
+      // Column row
       const rowStart = thY+40;
       ctx.fillStyle=grid; ctx.fillRect(50, rowStart, W-100, 28);
       ctx.fillStyle=fg; ctx.font='bold 13px Arial';
@@ -313,6 +381,7 @@
       ctx.fillText('Cantidad', 520, rowStart+18);
       ctx.fillText('P. Unitario', 660, rowStart+18);
       ctx.fillText('Subtotal', 820, rowStart+18);
+      // Items
       let iy=rowStart+40;
       ctx.font='13px Arial'; ctx.fillStyle=fg;
       for(const it of v.items){
@@ -326,6 +395,7 @@
         ctx.fillText(money(it.precio*it.cantidad), 820, iy);
         iy+=28;
       }
+      // Summary right
       const sumY = iy + 20, sumX = W-380, sumW = 300, sumH = 110;
       ctx.strokeStyle=green; ctx.lineWidth=2; ctx.strokeRect(sumX, sumY, sumW, sumH);
       ctx.font='13px Arial'; ctx.fillStyle=fg; ctx.textAlign='center';
@@ -339,8 +409,8 @@
     async function shareReceiptImage(v){
       const canvas = drawReceiptToCanvas(v);
       const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-      const file = new File([blob], `Boleta_${v.correlativo}.png`, {type:'image/png'});
-      if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], title:'Boleta', text:`Boleta N° ${v.correlativo}`}); }catch(e){} }
+      const file = new File([blob], `Pedido_${v.correlativo}.png`, {type:'image/png'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], title:'Pedido', text:`Pedido N° ${v.correlativo}`}); }catch(e){} }
       else { const url=URL.createObjectURL(file); const a=document.createElement('a'); a.href=url; a.download=file.name; a.click(); URL.revokeObjectURL(url); }
     }
 
@@ -358,6 +428,20 @@
     }
     function nuevaVenta(){ carro=[]; $('cliente').value=''; const now = new Date(); const tz = now.getTimezoneOffset()*60000; $('fechaHora').value=new Date(now - tz).toISOString().slice(0,16); updateTotals(); renderCarro(); }
 
+    // Historial + filtro
+    function ventaCardHTML(v){
+      return `
+        <div style="flex:1 1 auto; min-width:0;">
+          <div class="title-sm">Pedido N° ${v.correlativo} — ${v.fecha}</div>
+          <div class="muted">Cliente: ${v.cliente} · Total: ${fmt.format(v.total)}</div>
+          <div id="exp-${v.correlativo}" class="hidden" style="margin-top:8px;">
+            ${renderVentaDetalleHTML(v)}
+          </div>
+        </div>
+        <div style="flex:0 0 110px; display:flex; justify-content:flex-end; align-items:flex-start;">
+          <button class="btn btn--small" style="width:110px" onclick="toggleVer(${v.correlativo})">Ver</button>
+        </div>`;
+    }
     function renderVentaDetalleHTML(v){
       const items=v.items.map(i=>`<div style="display:flex;justify-content:space-between;"><span>${i.nombre} · ${i.cantidad} x ${fmt.format(i.precio)}</span><strong>${fmt.format(i.precio*i.cantidad)}</strong></div>`).join('');
       return `<div>
@@ -368,25 +452,32 @@
         <div style="display:flex;justify-content:space-between;"><span>IVA (${v.ivaRate}%)</span><strong>${fmt.format(v.iva)}</strong></div>
         <div style="display:flex;justify-content:space-between;"><span>Total</span><strong>${fmt.format(v.total)}</strong></div>
         <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-          <button class="btn" style="width:110px" onclick="compartirDesdeHist(${v.correlativo})">Compartir</button>
+          <button class="btn icon-btn" onclick="compartirDesdeHist(${v.correlativo})" title="Compartir" aria-label="Compartir">
+            <svg class="icon-share" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M14 3l7 7-7 7v-4H8a5 5 0 01-5-5V7h2v1a3 3 0 003 3h6V7l0-4z"/>
+              <path d="M5 19h14v2H5z"/>
+            </svg>
+          </button>
         </div>
       </div>`;
     }
+    function getVentas(){ return store.get('ventas',[]).sort((a,b)=>b.correlativo-a.correlativo); }
     function renderHistorial(){
-      const ventas=store.get('ventas',[]).sort((a,b)=>b.correlativo-a.correlativo);
       const cont=$('historial'); cont.innerHTML='';
+      for(const v of getVentas()){
+        const div=document.createElement('div'); div.className='list-item'; div.innerHTML = ventaCardHTML(v); cont.appendChild(div);
+      }
+    }
+    function aplicarFiltro(){
+      const q = ($('buscar').value||'').trim().toLowerCase();
+      const cont=$('historial'); cont.innerHTML='';
+      const ventas = getVentas().filter(v=>{
+        const cor = String(v.correlativo).includes(q);
+        const nom = (v.cliente||'').toLowerCase().includes(q);
+        return q==='' || cor || nom;
+      });
       for(const v of ventas){
-        const div=document.createElement('div'); div.className='list-item';
-        div.innerHTML = `
-          <div style="flex:1 1 auto; min-width:0;">
-            <div class="title-sm">Boleta N° ${v.correlativo} — ${v.fecha}</div>
-            <div class="muted">Cliente: ${v.cliente} · Total: ${fmt.format(v.total)}</div>
-            <div id="exp-${v.correlativo}" class="hidden" style="margin-top:8px;">${renderVentaDetalleHTML(v)}</div>
-          </div>
-          <div style="flex:0 0 110px; display:flex; justify-content:flex-end;">
-            <button class="btn" style="width:110px" onclick="toggleVer(${v.correlativo})">Ver</button>
-          </div>`;
-        cont.appendChild(div);
+        const div=document.createElement('div'); div.className='list-item'; div.innerHTML = ventaCardHTML(v); cont.appendChild(div);
       }
     }
     function toggleVer(c){ const el=$('exp-'+c); if(el) el.classList.toggle('hidden'); }
@@ -395,12 +486,13 @@
       await shareReceiptImage(v);
     }
 
+    // Productos
     function renderCatalogo(){
       const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre)); const cont=$('catalogo'); cont.innerHTML='';
       for(const p of productos){
         const li=document.createElement('div'); li.className='list-item';
         li.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div>
-                      <div class="row-actions">
+                      <div class="row-actions" style="justify-content:flex-end">
                         <button class='btn' style="background:var(--green);border-color:var(--green)" onclick="editarProducto('${p.id}')">Editar</button>
                         <button class='btn' style="background:var(--red);border-color:var(--red)" onclick="eliminarProducto('${p.id}')">Eliminar</button>
                       </div>`;
@@ -413,13 +505,7 @@
     function editarProducto(id){ const productos=store.get('productos',[]); const p=productos.find(x=>x.id===id); if(!p) return; const nuevo=prompt('Nuevo precio para '+p.nombre, p.precio); if(nuevo===null) return; const val=Number(nuevo); if(!(val>=0)) return alert('Precio inválido'); p.precio=val; store.set('productos',productos); renderCatalogo(); }
     function eliminarProducto(id){ const productos=store.get('productos',[]).filter(x=>x.id!==id); store.set('productos',productos); renderCatalogo(); }
 
-    (function(){
-      const s=getSession();
-      if(s){ bootApp(); }
-      else {
-        $('view-auth').classList.remove('hidden');
-      }
-    })();
+    (function(){ const s=getSession(); if(s){ bootApp(); } else { $('view-auth').classList.remove('hidden'); } })();
   </script>
 </body>
 </html>
