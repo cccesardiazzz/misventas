@@ -199,7 +199,7 @@ function attachPinMask(id){ const el=$(id); if(!el) return; el.addEventListener(
 function formatRutHyphenOnly(raw){ let r=(raw||'').toUpperCase().replace(/[^0-9K]/g,''); if(r.length<=1)return r; return r.slice(0,-1)+'-'+r.slice(-1); }
 function attachRutMask(id){ const el=$(id); if(!el) return; el.addEventListener('input', ()=>{ const c=(el.value||'').toUpperCase().replace(/[^0-9K]/g,''); el.value=formatRutHyphenOnly(c); }); }
 
-const company = { nombre:"MERCADITO QUILICURA SPA", giro:"VENTA DE TODO TIPO DE ALIMENTOS", direccion:"AV. LAS TORRES SUR 191 A", comuna:"Quilicura", ciudad:"Santiago", region:"Región Metropolitana de Santiago", rut:"77.934.268-9" };
+const company = { nombre:"MERCADITO QUILICURA SPA", giro:"VENTA DE TODO TIPO DE ALIMENTOS", direccion:"AV. LAS TORRES SUR 191 A", comuna:"Quilicura", ciudad:"Santiago", region:"Metropolitana de Santiago", rut:"77.934.268-9" };
 
 function users(){ try{return JSON.parse(localStorage.getItem('users_rutpin'))||[]}catch{return[]} }
 function saveUsers(arr){ localStorage.setItem('users_rutpin', JSON.stringify(arr)); }
@@ -311,9 +311,9 @@ function decQty(id){ const it=carro.find(x=>x.idProd===id); if(!it) return; it.q
 function calcTotals(){ const ivaRate=store.get('iva',19); const neto=carro.reduce((s,i)=>s+i.precio*i.qty,0); const iva=Math.round(neto*ivaRate/100); const total=neto+iva; return {neto,iva,total,ivaRate}; }
 function updateTotals(){ const t=calcTotals(); $('neto').textContent=fmt.format(t.neto); $('iva').textContent=fmt.format(t.iva); $('total').textContent=fmt.format(t.total); }
 
-// Recibo (imagen para compartir)
+// Recibo (imagen para compartir) — con cabecera corregida y columnas alineadas
 function drawReceiptToCanvas(v){
-  const W=1120, H= Math.max(740, 400 + v.items.length*42);
+  const W=1120, H= Math.max(780, 420 + v.items.length*42);
   const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H;
   const ctx = canvas.getContext('2d');
   const bg = '#ffffff'; const fg = '#0b1220'; const green = '#13A37E'; const grid = '#cfe9df';
@@ -325,28 +325,36 @@ function drawReceiptToCanvas(v){
   ctx.fillText('Dirección: AV. LAS TORRES SUR 191 A', x, y); y+=22;
   ctx.fillText('Comuna: Quilicura', x, y); y+=22;
   ctx.fillText('Ciudad: Santiago', x, y); y+=22;
-  ctx.fillText('Región: Región Metropolitana de Santiago', x, y);
-  const boxX = W-380, boxY=90, boxW=300, boxH=120;
+  ctx.fillText('Región: Metropolitana de Santiago', x, y);
+  const boxX = W-380, boxY=90, boxW=300, boxH=140;
   ctx.strokeStyle='#e74c3c'; ctx.lineWidth=3; ctx.strokeRect(boxX, boxY, boxW, boxH);
   ctx.fillStyle=fg; ctx.textAlign='center';
   ctx.font='16px Arial'; ctx.fillText('R.U.T.: 77.934.268-9', boxX+boxW/2, boxY+28);
   ctx.font='bold 18px Arial'; ctx.fillText('N° DE PEDIDO', boxX+boxW/2, boxY+58);
   ctx.font='bold 22px Arial'; ctx.fillText(String(v.correlativo).padStart(4,'0'), boxX+boxW/2, boxY+92);
-  ctx.textAlign='left';
-  ctx.fillStyle=fg; ctx.font='14px Arial'; ctx.fillText('Fecha de Emisión', boxX, boxY+150);
-  ctx.font='bold 14px Arial'; ctx.fillText(v.fecha, boxX+160, boxY+150);
-  const thY = boxY+190;
+  // Fecha + Hora
+  const parts = (v.fecha||'').split(' ');
+  const fStr = parts[0] || v.fecha;
+  const hStr = parts[1] || '';
+  ctx.textAlign='left'; ctx.fillStyle=fg; ctx.font='14px Arial';
+  ctx.fillText('Fecha de Emisión', boxX, boxY+160);
+  ctx.font='bold 14px Arial'; ctx.fillText(fStr, boxX+160, boxY+160);
+  ctx.font='14px Arial'; ctx.fillText('Hora de transacción', boxX, boxY+182);
+  ctx.font='bold 14px Arial'; ctx.fillText(hStr, boxX+160, boxY+182);
+
+  // Tabla
+  const thY = boxY+210;
   ctx.fillStyle=green; ctx.fillRect(50, thY, W-100, 28);
   ctx.fillStyle='#ffffff'; ctx.font='bold 14px Arial'; ctx.fillText('DETALLE DEL DOCUMENTO', 60, thY+19);
   const rowStart = thY+40;
   ctx.fillStyle=grid; ctx.fillRect(50, rowStart, W-100, 28);
-  ctx.fillStyle=fg; ctx.font='bold 13px Arial';
+  ctx.fillStyle=fg; ctx.font='bold 13px Arial'; ctx.textAlign='left';
   ctx.fillText('Nombre', 60, rowStart+18);
   ctx.fillText('Cantidad', 520, rowStart+18);
   ctx.fillText('P. Unitario', 660, rowStart+18);
-  ctx.fillText('Subtotal', 820, rowStart+18);
+  ctx.textAlign='right'; ctx.fillText('Subtotal', 1040, rowStart+18); // header alineado
   let iy=rowStart+40;
-  ctx.font='13px Arial'; ctx.fillStyle=fg;
+  ctx.font='13px Arial'; ctx.fillStyle=fg; ctx.textAlign='left';
   for(const it of v.items){
     ctx.fillStyle= (Math.round((iy-rowStart)/28)%2===0) ? '#f8fbfa' : '#ffffff';
     ctx.fillRect(50, iy-14, W-100, 28);
@@ -406,7 +414,7 @@ async function compartirYGuardar(){
 }
 function limpiar(){ carro=[]; $('cliente').value=''; const now=new Date(); const tz=now.getTimezoneOffset()*60000; $('fechaHora').value=new Date(now - tz).toISOString().slice(0,16); updateTotals(); renderCarro(); }
 
-// Historial (compacto, con icono compartir)
+// Historial (compacto + icono compartir)
 function ventaCardHTML(v){
   const corr = String(v.correlativo).padStart(4,'0');
   return `
@@ -468,7 +476,6 @@ function toggleVer(c){ const el=$('exp-'+c); if(el) el.classList.toggle('hidden'
 async function compartirDesdeHist(c){
   const ventas=store.get('ventas',[]); const v=ventas.find(x=>x.correlativo===c); if(!v) return;
   await shareReceiptImage(v);
-  // No success overlay aquí
 }
 
 // Productos
