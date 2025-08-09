@@ -12,13 +12,13 @@
   --border:#E5E7EB; --soft:#f3f4f6; --radius:16px; --shadow:0 6px 22px rgba(2,6,23,.06);
   --btn:#000000; --btnText:#ffffff; --btnBorder:#000000;
   --green:#10a37f; --red:#e11d48; --blue:#007BFF;
-  --tabRing:#111827; /* gris oscuro en claro */
+  --tabRing:#111827; /* light: dark gray ring */
 }
 [data-theme="dark"]{
   --bg:#0b1220; --surface:#0f172a; --text:#eef0f4; --muted:#B7C1D1;
   --border:#1f2937; --soft:#111827; --shadow:0 6px 22px rgba(0,0,0,.5);
   --btn:var(--blue); --btnText:#ffffff; --btnBorder:var(--blue);
-  --tabRing:#FFFFFF; /* blanco en oscuro */
+  --tabRing:#FFFFFF; /* dark: white ring */
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial,sans-serif;color:var(--text)}
@@ -31,7 +31,9 @@ header{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:
 [data-theme="dark"] .circle{ border-color:#ffffff; } 
 nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
 .btn,.tab{appearance:none;border:2px solid var(--btnBorder);background:var(--btn);color:var(--btnText);padding:12px 16px;border-radius:999px;font-weight:900;text-align:center;font-size:16px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.15s}
-.tab.active{ box-shadow: 0 0 0 2px var(--tabRing); } /* outlined active */
+/* Active tab ring must stay visible; also apply on :focus-visible for accessibility */
+.tab.active{ box-shadow: 0 0 0 2px var(--tabRing); }
+.tab:focus-visible{ outline:none; box-shadow: 0 0 0 2px var(--tabRing); }
 .container{max-width:980px;margin:0 auto;padding:12px 16px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:800}
@@ -40,13 +42,14 @@ input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;
 input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14px 16px;border-radius:14px;text-align:center;font-weight:600;letter-spacing:.3px}
 .list{display:flex;flex-direction:column;gap:10px}
 .list-item{position:relative; display:flex;align-items:flex-start;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
-.swipe-bg{position:absolute;inset:0;background:#ef4444;display:flex;align-items:center;justify-content:flex-end;padding-right:18px;color:#fff;font-weight:700;pointer-events:none}
-.swipe-bg .trash{width:26px;height:26px}
 .muted{color:var(--muted)}.right{text-align:right}.hidden{display:none !important}
 .picker{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:12px;cursor:pointer}
-.cart-row{display:grid;grid-template-columns:1fr minmax(160px, 190px) 140px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
-.qty{display:flex;align-items:center;gap:10px;justify-content:center;text-align:center}
+/* Carro grid aligned with tabular numbers */
+.cart-row{display:grid;grid-template-columns:1fr 180px 160px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.qty{display:flex;align-items:center;gap:10px;justify-content:center;text-align:center;font-variant-numeric: tabular-nums}
+.qty strong{min-width:24px;text-align:center;display:inline-block}
 .qty button{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer}
+.price{font-variant-numeric: tabular-nums; text-align:right; display:block; min-width:140px}
 .sheet{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top-left-radius:16px;border-top-right-radius:16px;max-height:70vh;transform:translateY(100%);transition:.25s;box-shadow:0 -12px 30px rgba(0,0,0,.2);border:1px solid var(--border);touch-action:none}
 .sheet.open{transform:translateY(0)}
 .sheet .handle{width:50px;height:6px;background:#e5e7eb;border-radius:999px;margin:10px auto;cursor:pointer}
@@ -190,7 +193,7 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
   </section>
 </main>
 
-<div id="backdrop" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px)"></div>
+<div id="backdrop" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(1px)"></div>
 <div class="sheet" id="sheet">
   <div class="handle" title="Cerrar"></div>
   <div class="body" id="sheetBody"></div>
@@ -320,7 +323,7 @@ function renderCarro(){
     const row=document.createElement('div'); row.className='cart-row';
     row.innerHTML=`<div><div class='title-sm'>${it.nombre}</div></div>
                    <div class='qty'><button onclick="decQty('${it.idProd}')">−</button><strong>${it.qty}</strong><button onclick="incQty('${it.idProd}')">+</button></div>
-                   <div class='right'><strong>${fmt.format(it.precio*it.qty)}</strong></div>`;
+                   <div class='right'><strong class="price">${fmt.format(it.precio*it.qty)}</strong></div>`;
     cont.appendChild(row);
   } updateTotals();
 }
@@ -329,7 +332,7 @@ function decQty(id){ const it=carro.find(x=>x.idProd===id); if(!it) return; it.q
 function calcTotals(){ const ivaRate=store.get('iva',19); const neto=carro.reduce((s,i)=>s+i.precio*i.qty,0); const iva=Math.round(neto*ivaRate/100); const total=neto+iva; return {neto,iva,total,ivaRate}; }
 function updateTotals(){ const t=calcTotals(); $('neto').textContent=fmt.format(t.neto); $('iva').textContent=fmt.format(t.iva); $('total').textContent=fmt.format(t.total); }
 
-// Recibo imagen
+// Recibo imagen (pedido number smaller)
 function drawReceiptToCanvas(v){
   const W=1120, H= Math.max(740, 400 + v.items.length*42);
   const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H;
@@ -349,7 +352,7 @@ function drawReceiptToCanvas(v){
   ctx.fillStyle=fg; ctx.textAlign='center';
   ctx.font='16px Arial'; ctx.fillText('R.U.T.: 77.934.268-9', boxX+boxW/2, boxY+28);
   ctx.font='bold 18px Arial'; ctx.fillText('N° DE PEDIDO', boxX+boxW/2, boxY+58);
-  ctx.font='bold 28px Arial'; ctx.fillText(String(v.correlativo).padStart(4,'0'), boxX+boxW/2, boxY+92);
+  ctx.font='bold 24px Arial'; ctx.fillText(String(v.correlativo).padStart(4,'0'), boxX+boxW/2, boxY+92); /* smaller than before */
   ctx.textAlign='left';
   ctx.fillStyle=fg; ctx.font='14px Arial'; ctx.fillText('Fecha de Emisión', boxX, boxY+150);
   ctx.font='bold 14px Arial'; ctx.fillText(v.fecha, boxX+160, boxY+150);
@@ -422,15 +425,10 @@ async function compartirYGuardar(){
 }
 function limpiar(){ carro=[]; $('cliente').value=''; const now=new Date(); const tz=now.getTimezoneOffset()*60000; $('fechaHora').value=new Date(now - tz).toISOString().slice(0,16); updateTotals(); renderCarro(); }
 
-// Historial + swipe-to-delete + filtro
+// Historial (SIN eliminar por swipe) + filtro
 function ventaCardHTML(v){
   const corr = String(v.correlativo).padStart(4,'0');
   return `
-    <div class="swipe-bg">
-      <svg class="trash" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M9 3h6a1 1 0 0 1 1 1v1h4v2H4V5h4V4a1 1 0 0 1 1-1zM6 9h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9z"/>
-      </svg>
-    </div>
     <div style="flex:1 1 auto; min-width:0; position:relative; z-index:1;">
       <div class="title-sm">Pedido N° ${corr} — ${v.fecha}</div>
       <div class="muted">Cliente: ${v.cliente} · Total: ${fmt.format(v.total)}</div>
@@ -439,7 +437,7 @@ function ventaCardHTML(v){
       </div>
     </div>
     <div style="flex:0 0 110px; display:flex; justify-content:flex-end; align-items:flex-start; z-index:1;">
-      <button class="btn btn--small" style="width:110px" onclick="toggleVer(${v.correlativo})">Ver</button>
+      <button class="btn btn--small" style="width:110px; background:#10a37f;border-color:#10a37f" onclick="toggleVer(${v.correlativo})">Ver</button>
     </div>`;
 }
 function renderVentaDetalleHTML(v){
@@ -464,32 +462,11 @@ function renderVentaDetalleHTML(v){
   </div>`;
 }
 function getVentas(){ return store.get('ventas',[]).sort((a,b)=>b.correlativo-a.correlativo); }
-function attachSwipe(el, venta){
-  let startX=null, trans=0;
-  el.addEventListener('touchstart',e=>{ startX=e.touches[0].clientX; trans=0; }, {passive:true});
-  el.addEventListener('touchmove',e=>{
-    if(startX==null) return;
-    const dx=e.touches[0].clientX-startX;
-    trans = Math.max(0, dx);
-    el.style.transform = `translateX(${trans}px)`;
-  }, {passive:true});
-  el.addEventListener('touchend',e=>{
-    if(trans>120){ eliminarVenta(venta.correlativo); }
-    el.style.transform='translateX(0px)';
-    startX=null; trans=0;
-  });
-}
 function renderHistorial(){
   const cont=$('historial'); cont.innerHTML='';
   for(const v of getVentas()){
     const div=document.createElement('div'); div.className='list-item'; div.innerHTML = ventaCardHTML(v); cont.appendChild(div);
-    attachSwipe(div, v);
   }
-}
-function eliminarVenta(cor){
-  const ventas=store.get('ventas',[]).filter(x=>x.correlativo!==cor);
-  store.set('ventas', ventas);
-  renderHistorial();
 }
 function aplicarFiltro(){
   const q = ($('buscar').value||'').trim().toLowerCase();
@@ -501,14 +478,13 @@ function aplicarFiltro(){
   });
   for(const v of ventas){
     const div=document.createElement('div'); div.className='list-item'; div.innerHTML = ventaCardHTML(v); cont.appendChild(div);
-    attachSwipe(div, v);
   }
 }
 function toggleVer(c){ const el=$('exp-'+c); if(el) el.classList.toggle('hidden'); }
 async function compartirDesdeHist(c){
   const ventas=store.get('ventas',[]); const v=ventas.find(x=>x.correlativo===c); if(!v) return;
   await shareReceiptImage(v);
-  // NO showSuccess aquí (solicitado)
+  // NO showSuccess aquí
 }
 
 // Productos
