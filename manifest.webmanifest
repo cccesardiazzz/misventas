@@ -3,8 +3,8 @@
   "short_name": "MiniBoleta",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#0B1324",
+  "theme_color": "#0F172A",
   "icons": [
     {
       "src": "icon-192.png",

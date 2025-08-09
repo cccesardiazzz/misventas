@@ -3,523 +3,403 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>MiniBoleta · PWA</title>
+  <meta name="theme-color" content="#0F172A"/>
+  <title>MiniBoleta — Boletas con IVA</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#000000"/>
   <style>
-    :root { --spacing: 12px; --accent: #000; --bg:#f8f9fb; --card:#fff; --border:#e4e6eb; }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui,-apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji","Segoe UI Emoji"; background: var(--bg); color: #111; }
-    header { position: sticky; top: 0; background: var(--card); border-bottom:1px solid var(--border); padding: var(--spacing); display:flex; align-items:center; gap:8px; z-index:10;}
-    header h1{ font-size:18px; margin:0; }
-    nav { display:flex; gap:8px; margin-left:auto; }
-    nav button { padding:8px 12px; border:1px solid var(--border); background:#fff; border-radius:10px; }
-    .container{ padding: var(--spacing); max-width: 900px; margin: 0 auto; }
-    .card{ background: var(--card); border:1px solid var(--border); border-radius:16px; padding:var(--spacing); margin-bottom: var(--spacing); }
-    label{ font-size:14px; color:#333; display:block; margin-bottom:4px; }
-    input, select { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:#fff; }
-    table{ width:100%; border-collapse: collapse; font-size:14px; }
-    th, td{ padding:8px; border-bottom:1px solid var(--border); text-align:left; }
-    tfoot td{ font-weight:600; }
-    .row{ display:grid; grid-template-columns:1fr 1fr; gap: var(--spacing); }
-    .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap: var(--spacing); }
-    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
-    .btn{ padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:#fff; }
-    .btn.primary{ background: var(--accent); color:#fff; border-color: var(--accent); }
-    .hidden{ display:none !important; }
-    .right{ text-align:right; }
-    .danger{ color:#c00; }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
-    .pill{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid var(--border); background:#fafafa; }
-    @media (max-width:700px){ .row,.row3{ grid-template-columns:1fr; } }
-    /* Print styles: show only printable receipt */
-    @media print {
-      body { background:#fff; }
-      header, nav, #view-venta, #view-historial, #view-admin { display:none !important; }
-      #printable { display:block !important; }
+    :root{
+      --bg:#eef0f4;           /* gris claro fondo app */
+      --surface:#ffffff;      /* tarjetas */
+      --text:#0b1220;         /* texto */
+      --muted:#687182;        /* texto suave */
+      --border:#E5E7EB;       /* bordes suaves */
+      --pill:#0f172a;         /* pastillas oscuras */
+      --pillText:#ffffff;
+      --soft:#f3f4f6;         /* inputs */
+      --accent:#0f172a;       /* primario */
+      --accent-ghost:#d1d5db; /* gris botones secundarios */
+      --radius:16px;
+      --shadow:0 6px 22px rgba(2,6,23,.06);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial,sans-serif;color:var(--text)}
+    header{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border)}
+    .wrap{max-width:980px;margin:0 auto;padding:12px 16px}
+    h1{margin:2px 0 10px;font-size:20px;font-weight:800}
+    nav{display:flex;gap:8px;margin-bottom:8px}
+    .tab{appearance:none;border:1px solid var(--border);background:#fff;color:var(--text);padding:10px 14px;border-radius:999px;font-weight:600}
+    .tab.active{background:var(--pill);color:var(--pillText);border-color:var(--pill)}
+    .container{max-width:980px;margin:0 auto;padding:12px 16px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff}
+    .search{background:var(--soft)}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:720px){ .row{grid-template-columns:1fr 1fr} }
+    .list{display:flex;flex-direction:column;gap:10px}
+    .list-item{display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:14px;background:#fff;box-shadow:var(--shadow)}
+    .title-sm{font-weight:700}
+    .muted{color:var(--muted)}
+    .pill-btn{appearance:none;border:1px solid var(--pill);background:var(--pill);color:#fff;border-radius:999px;padding:10px 16px;font-weight:700}
+    .pill-btn.ghost{border-color:var(--accent-ghost);background:#f3f4f6;color:#111}
+    .totals{padding:10px 0}
+    .totals div{display:flex;justify-content:space-between;margin:6px 0}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
+    .cart{min-height:60px}
+    .cart-item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+    .qty{display:flex;align-items:center;gap:8px}
+    .qty button{border:1px solid var(--border);background:#fff;border-radius:999px;width:32px;height:32px}
+    .right{text-align:right}
+    .hidden{display:none !important}
+    /* Print */
+    @media print{
+      header, #view-vender, #view-historial, #view-productos {display:none !important}
+      #printable{display:block !important}
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>🧾 MiniBoleta</h1>
-    <nav>
-      <button onclick="showView('venta')">Venta</button>
-      <button onclick="showView('historial')">Historial</button>
-      <button onclick="showView('admin')">Admin</button>
-    </nav>
+    <div class="wrap">
+      <h1>Ventas Abarrotes — Boletas con IVA</h1>
+      <nav>
+        <button class="tab active" id="tab-vender" onclick="showView('vender')">Vender</button>
+        <button class="tab" id="tab-historial" onclick="showView('historial')">Historial</button>
+        <button class="tab" id="tab-productos" onclick="showView('productos')">Productos</button>
+      </nav>
+    </div>
   </header>
 
-  <div class="container">
-    <!-- VENTA -->
-    <section id="view-venta" class="card">
-      <h2>Nueva venta</h2>
-      <div class="row">
-        <div>
-          <label>Cliente</label>
-          <input id="cliente" placeholder="Nombre del cliente">
-        </div>
-        <div>
-          <label>Fecha</label>
-          <input id="fecha" type="date">
-        </div>
-      </div>
-      <div class="row3" style="margin-top:var(--spacing);">
-        <div>
-          <label>Producto</label>
-          <select id="producto"></select>
-        </div>
-        <div>
-          <label>Cantidad</label>
-          <input id="cantidad" type="number" min="1" value="1">
-        </div>
-        <div style="align-self:end;">
-          <button class="btn" onclick="addItem()">Agregar</button>
-        </div>
-      </div>
+  <main class="container">
+    <!-- VENDER -->
+    <section id="view-vender" class="">
       <div class="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th><th class="right">Precio unitario</th><th class="right">Cantidad</th><th class="right">Subtotal</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="items"></tbody>
-          <tfoot>
-            <tr><td colspan="3" class="right">Neto</td><td class="right mono" id="neto">$0</td><td></td></tr>
-            <tr><td colspan="3" class="right">IVA (<span id="iva-rate">19</span>%)</td><td class="right mono" id="iva">$0</td><td></td></tr>
-            <tr><td colspan="3" class="right">Total (Bruto)</td><td class="right mono" id="total">$0</td><td></td></tr>
-          </tfoot>
-        </table>
-        <div class="actions" style="margin-top:8px;">
-          <button class="btn" onclick="resetVenta()">Limpiar</button>
-          <button class="btn primary" onclick="saveAndPrint()">Guardar & Imprimir</button>
+        <label>Cliente (opcional)</label>
+        <input id="cliente" placeholder="Ej: Jorge Díaz">
+      </div>
+
+      <div class="card">
+        <label>Buscar producto</label>
+        <input id="buscar" class="search" placeholder="Ej: arroz, leche, aceite" oninput="renderListaProductos()">
+        <div id="productos" class="list" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="title-sm">Carro</div>
+        <div id="carro" class="cart muted">Sin productos aún.</div>
+      </div>
+
+      <div class="card">
+        <div class="totals">
+          <div><span>Subtotal:</span><strong id="neto">$0</strong></div>
+          <div><span>IVA (<span id="iva-rate">19</span>%):</span><strong id="iva">$0</strong></div>
+          <div><span>Total:</span><strong id="total">$0</strong></div>
+        </div>
+        <div class="btns">
+          <button class="pill-btn" onclick="emitir()">Emitir e Imprimir/Guardar</button>
+          <button class="pill-btn ghost" onclick="nuevaVenta()">Nueva Venta</button>
         </div>
       </div>
     </section>
 
     <!-- HISTORIAL -->
-    <section id="view-historial" class="card hidden">
-      <h2>Historial</h2>
-      <div class="row">
-        <div>
-          <label>Buscar por cliente o correlativo</label>
-          <input id="search" placeholder="Ej: Juan Pérez o 000123" oninput="renderHistorial()">
-        </div>
-        <div style="align-self:end;">
-          <span class="pill" id="count"></span>
-        </div>
-      </div>
+    <section id="view-historial" class="hidden">
       <div class="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Correlativo</th><th>Fecha</th><th>Cliente</th><th class="right">Total</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="historial"></tbody>
-        </table>
+        <label>Buscar por N° o cliente</label>
+        <input id="buscarHist" class="search" placeholder="Ej: 123 o Juan" oninput="renderHistorial()">
       </div>
+      <div id="historial" class="list"></div>
     </section>
 
-    <!-- ADMIN -->
-    <section id="view-admin" class="card hidden">
-      <h2>Admin</h2>
-      <div id="admin-locked">
-        <label>PIN de admin</label>
-        <div class="actions">
-          <input id="pin" type="password" placeholder="1234" style="max-width:200px;">
-          <button class="btn" onclick="unlock()">Entrar</button>
-        </div>
-      </div>
-      <div id="admin-panel" class="hidden">
+    <!-- PRODUCTOS -->
+    <section id="view-productos" class="hidden">
+      <div class="card">
+        <div class="title-sm" style="margin-bottom:8px;">Nuevo producto</div>
         <div class="row">
-          <div class="card">
-            <h3>Productos</h3>
-            <div class="row3">
-              <input id="prod-nombre" placeholder="Nombre producto">
-              <input id="prod-precio" type="number" min="0" placeholder="Precio CLP">
-              <button class="btn" onclick="addProducto()">Agregar</button>
-            </div>
-            <table style="margin-top:8px;">
-              <thead><tr><th>Producto</th><th class="right">Precio</th><th></th></tr></thead>
-              <tbody id="productos-table"></tbody>
-            </table>
+          <div>
+            <label>Nombre</label>
+            <input id="prod-nombre" placeholder="Nombre">
           </div>
-          <div class="card">
-            <h3>Parámetros</h3>
-            <label>IVA (%)</label>
-            <input id="iva-input" type="number" min="0" max="100" value="19" style="max-width:120px;">
-            <label style="margin-top:8px;">Cambiar PIN</label>
-            <div class="row3">
-              <input id="pin1" type="password" placeholder="Nuevo PIN">
-              <input id="pin2" type="password" placeholder="Repetir PIN">
-              <button class="btn" onclick="changePIN()">Guardar PIN</button>
-            </div>
-            <div class="actions" style="margin-top:8px;">
-              <button class="btn" onclick="exportBackup()">Exportar respaldo</button>
-              <label class="btn">
-                Importar respaldo
-                <input id="import-file" type="file" accept=".json" style="display:none" onchange="importBackup(this.files[0])">
-              </label>
-              <button class="btn danger" onclick="resetTodo()">Borrar TODO</button>
-            </div>
+          <div>
+            <label>Precio</label>
+            <input id="prod-precio" type="number" min="0" placeholder="Precio">
           </div>
         </div>
+        <div class="btns" style="margin-top:10px;">
+          <button class="pill-btn" onclick="agregarProducto()">Agregar</button>
+          <button class="pill-btn ghost" onclick="cancelNuevo()">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title-sm" style="margin-bottom:8px;">Catálogo</div>
+        <div id="catalogo" class="list"></div>
       </div>
     </section>
 
-    <!-- Printable receipt -->
-    <section id="printable" class="card hidden">
-      <div id="receipt"></div>
+    <!-- Printable -->
+    <section id="printable" class="hidden">
+      <div id="receipt" class="card"></div>
     </section>
-  </div>
+  </main>
 
   <script>
-    // --- Utilities ---
     const $ = (id)=>document.getElementById(id);
     const fmt = new Intl.NumberFormat('es-CL',{ style:'currency', currency:'CLP', maximumFractionDigits:0 });
 
     const store = {
-      get(key, def){ try{ return JSON.parse(localStorage.getItem(key)) ?? def } catch{ return def } },
-      set(key, val){ localStorage.setItem(key, JSON.stringify(val)); },
-      remove(key){ localStorage.removeItem(key); }
-    };
-
-    const state = {
-      items: []
+      get(k,def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def }catch{ return def } },
+      set(k,v){ localStorage.setItem(k, JSON.stringify(v)); },
     };
 
     const defaults = {
+      iva: 19,
       productos: [
-        { id: crypto.randomUUID(), nombre: "Arroz 1kg", precio: 1500 },
-        { id: crypto.randomUUID(), nombre: "Aceite 1L", precio: 2800 },
-        { id: crypto.randomUUID(), nombre: "Fideos 400g", precio: 1200 },
-        { id: crypto.randomUUID(), nombre: "Azúcar 1kg", precio: 1400 }
+        {id:crypto.randomUUID(), nombre:'Arroz 1kg', precio:1500},
+        {id:crypto.randomUUID(), nombre:'Azúcar 1kg', precio:1200},
+        {id:crypto.randomUUID(), nombre:'Aceite 1L', precio:3800},
+        {id:crypto.randomUUID(), nombre:'Fideos 400g', precio:900},
+        {id:crypto.randomUUID(), nombre:'Leche 1L', precio:1100},
       ],
       ventas: [],
-      nextCorrelativo: 1,
-      iva: 19,
-      pin: "1234"
+      nextCorrelativo: 100
     };
 
+    let carro = []; // {idProd, nombre, precio, qty}
+
     function init(){
-      // Boot data
       for (const [k,v] of Object.entries(defaults)){
         if (store.get(k) == null) store.set(k, v);
       }
-      // Seed UI
-      $('fecha').valueAsNumber = Date.now() - (new Date().getTimezoneOffset()*60000);
-      renderProductosSelect();
-      renderItems();
+      $('iva-rate').textContent = store.get('iva',19);
+      renderListaProductos();
+      renderCarro();
       renderHistorial();
-      $('iva-rate').textContent = store.get('iva', 19);
-
-      // PWA install
       if ('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+        navigator.serviceWorker.register('./service-worker.js');
       }
     }
 
-    function showView(id){
-      for (const v of ['venta','historial','admin']){
-        $('view-'+v).classList.toggle('hidden', v!==id);
-      }
-      if (id==='historial') renderHistorial();
-    }
-
-    // --- Venta ---
-    function renderProductosSelect(){
-      const productos = store.get('productos', []);
-      const sel = $('producto');
-      sel.innerHTML = '';
-      productos.forEach(p=>{
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = `${p.nombre} — ${fmt.format(p.precio)}`;
-        sel.appendChild(opt);
+    function showView(v){
+      ['vender','historial','productos'].forEach(x=>{
+        $('view-'+x).classList.toggle('hidden', x!==v);
+        $('tab-'+x).classList.toggle('active', x===v);
       });
+      if (v==='historial') renderHistorial();
+      if (v==='productos') renderCatalogo();
     }
 
-    function addItem(){
-      const productos = store.get('productos', []);
-      const id = $('producto').value;
-      const cantidad = Math.max(1, parseInt($('cantidad').value || '1', 10));
-      const prod = productos.find(p=>p.id===id);
-      if (!prod) return alert('Producto no encontrado');
-      const item = { id: crypto.randomUUID(), productoId: id, nombre: prod.nombre, precio: prod.precio, cantidad };
-      state.items.push(item);
-      renderItems();
+    // VENTA
+    function renderListaProductos(){
+      const q = ($('buscar').value||'').toLowerCase();
+      const productos = store.get('productos',[]).filter(p => p.nombre.toLowerCase().includes(q));
+      const cont = $('productos');
+      cont.innerHTML = '';
+      if (productos.length===0){
+        cont.innerHTML = '<div class="muted">Sin resultados.</div>';
+        return;
+      }
+      for (const p of productos){
+        const li = document.createElement('div');
+        li.className = 'list-item';
+        li.innerHTML = `<div>
+            <div class="title-sm">${p.nombre}</div>
+            <div class="muted">${fmt.format(p.precio)}</div>
+          </div>
+          <button class="pill-btn" onclick="agregarAlCarro('${p.id}')">Agregar</button>`;
+        cont.appendChild(li);
+      }
     }
 
-    function removeItem(id){
-      state.items = state.items.filter(i=>i.id!==id);
-      renderItems();
+    function agregarAlCarro(id){
+      const prod = store.get('productos',[]).find(x=>x.id===id);
+      if(!prod) return;
+      const existente = carro.find(x=>x.idProd===id);
+      if (existente){ existente.qty += 1; }
+      else { carro.push({ idProd:id, nombre:prod.nombre, precio:prod.precio, qty:1 }); }
+      renderCarro();
     }
 
-    function calcTotals(){
-      const ivaRate = Number(store.get('iva', 19));
-      const neto = state.items.reduce((sum,i)=> sum + i.precio * i.cantidad, 0);
-      const iva = Math.round(neto * (ivaRate/100));
+    function renderCarro(){
+      const cont = $('carro');
+      if (carro.length===0){ cont.innerHTML = '<span class="muted">Sin productos aún.</span>'; updateTotals(); return; }
+      cont.innerHTML = '';
+      for (const item of carro){
+        const row = document.createElement('div');
+        row.className = 'cart-item';
+        row.innerHTML = `
+          <div>
+            <div class="title-sm">${item.nombre}</div>
+            <div class="muted">${fmt.format(item.precio)}</div>
+          </div>
+          <div class="qty">
+            <button onclick="decQty('${item.idProd}')">−</button>
+            <strong>${item.qty}</strong>
+            <button onclick="incQty('${item.idProd}')">+</button>
+          </div>
+          <div class="right"><strong>${fmt.format(item.precio*item.qty)}</strong></div>`;
+        cont.appendChild(row);
+      }
+      updateTotals();
+    }
+
+    function incQty(id){ const it = carro.find(x=>x.idProd===id); if(!it) return; it.qty++; renderCarro(); }
+    function decQty(id){
+      const it = carro.find(x=>x.idProd===id); if(!it) return;
+      it.qty--; if (it.qty<=0) carro = carro.filter(x=>x.idProd!==id);
+      renderCarro();
+    }
+
+    function updateTotals(){
+      const ivaRate = store.get('iva',19);
+      const neto = carro.reduce((s,i)=> s + i.precio*i.qty, 0);
+      const iva = Math.round(neto * ivaRate/100);
       const total = neto + iva;
-      return { neto, iva, total, ivaRate };
+      $('neto').textContent = fmt.format(neto);
+      $('iva').textContent = fmt.format(iva);
+      $('total').textContent = fmt.format(total);
     }
 
-    function renderItems(){
-      const tbody = $('items');
-      tbody.innerHTML = '';
-      state.items.forEach(it=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${it.nombre}</td>
-          <td class="right mono">${fmt.format(it.precio)}</td>
-          <td class="right">${it.cantidad}</td>
-          <td class="right mono">${fmt.format(it.precio*it.cantidad)}</td>
-          <td class="right"><button class="btn" onclick="removeItem('${it.id}')">Quitar</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-      const t = calcTotals();
-      $('neto').textContent = fmt.format(t.neto);
-      $('iva').textContent = fmt.format(t.iva);
-      $('total').textContent = fmt.format(t.total);
-      $('iva-rate').textContent = t.ivaRate;
-    }
+    function pad(n,len=3){ return String(n).padStart(len,'0'); }
 
-    function resetVenta(){
-      state.items = [];
-      $('cliente').value = '';
-      $('cantidad').value = 1;
-      $('fecha').valueAsNumber = Date.now() - (new Date().getTimezoneOffset()*60000);
-      renderItems();
-    }
-
-    function pad(num, len=6){ return String(num).padStart(len, '0'); }
-
-    function saveAndPrint(){
-      if (state.items.length === 0) return alert('Agrega al menos un producto.');
-      const cliente = $('cliente').value.trim() || 'Consumidor Final';
-      const fecha = $('fecha').value || new Date().toISOString().slice(0,10);
-
-      // Build venta
-      const ventas = store.get('ventas', []);
-      const next = store.get('nextCorrelativo', 1);
-      const correlativo = pad(next);
-      const { neto, iva, total, ivaRate } = calcTotals();
+    function emitir(){
+      if (carro.length===0) { alert('Agrega productos al carro.'); return; }
+      const ventas = store.get('ventas',[]);
+      const next = store.get('nextCorrelativo',100);
+      const correlativo = next + 1;
+      const ivaRate = store.get('iva',19);
+      const neto = carro.reduce((s,i)=> s + i.precio*i.qty, 0);
+      const iva = Math.round(neto * ivaRate/100);
+      const total = neto + iva;
       const venta = {
-        correlativo,
-        fecha,
-        cliente,
-        items: state.items.map(i=>({ nombre:i.nombre, precio:i.precio, cantidad:i.cantidad })),
+        correlativo: correlativo,
+        fecha: new Date().toISOString().slice(0,16).replace('T',' '),
+        cliente: ($('cliente').value||'Consumidor Final'),
+        items: carro.map(i=>({nombre:i.nombre, precio:i.precio, cantidad:i.qty})),
         neto, iva, total, ivaRate
       };
       ventas.push(venta);
       store.set('ventas', ventas);
-      store.set('nextCorrelativo', next+1);
+      store.set('nextCorrelativo', correlativo);
 
-      // Render receipt and print
       renderReceipt(venta);
       window.print();
+      nuevaVenta();
+    }
 
-      // Reset
-      resetVenta();
-      alert('Guardado con correlativo ' + correlativo);
+    function nuevaVenta(){
+      carro = [];
+      $('cliente').value='';
+      updateTotals();
+      renderCarro();
     }
 
     function renderReceipt(v){
-      const el = $('receipt');
       const lines = v.items.map(i=>`
         <tr>
           <td>${i.nombre}</td>
-          <td class="right mono">${fmt.format(i.precio)}</td>
+          <td class="right">${fmt.format(i.precio)}</td>
           <td class="right">${i.cantidad}</td>
-          <td class="right mono">${fmt.format(i.precio*i.cantidad)}</td>
+          <td class="right">${fmt.format(i.precio*i.cantidad)}</td>
         </tr>`).join('');
-      el.innerHTML = `
-        <div style="max-width:700px;margin:auto;">
-          <h2 style="margin:4px 0;">MiniBoleta</h2>
-          <div style="display:flex;justify-content:space-between;">
-            <div><strong>Cliente:</strong> ${v.cliente}</div>
-            <div><strong>Fecha:</strong> ${v.fecha}</div>
-          </div>
-          <div><strong>Correlativo:</strong> ${v.correlativo}</div>
-          <hr/>
-          <table style="width:100%;border-collapse:collapse;">
-            <thead>
-              <tr><th style="text-align:left;">Producto</th><th class="right">P.Unit</th><th class="right">Cant</th><th class="right">Subtotal</th></tr>
-            </thead>
-            <tbody>${lines}</tbody>
-            <tfoot>
-              <tr><td colspan="3" class="right">Neto</td><td class="right mono">${fmt.format(v.neto)}</td></tr>
-              <tr><td colspan="3" class="right">IVA (${v.ivaRate}%)</td><td class="right mono">${fmt.format(v.iva)}</td></tr>
-              <tr><td colspan="3" class="right">Total</td><td class="right mono">${fmt.format(v.total)}</td></tr>
-            </tfoot>
-          </table>
-          <p style="font-size:12px;color:#555;margin-top:8px;">
-            Documento no válido como boleta electrónica del SII. Uso interno.
-          </p>
+      $('receipt').innerHTML = `
+        <h3 style="margin-top:0;">Boleta N° ${v.correlativo}</h3>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <div><strong>Cliente:</strong> ${v.cliente}</div>
+          <div><strong>Fecha:</strong> ${v.fecha}</div>
         </div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr><th style="text-align:left">Producto</th><th class="right">P. Unit</th><th class="right">Cant</th><th class="right">Subtotal</th></tr></thead>
+          <tbody>${lines}</tbody>
+          <tfoot>
+            <tr><td colspan="3" class="right">Neto</td><td class="right">${fmt.format(v.neto)}</td></tr>
+            <tr><td colspan="3" class="right">IVA (${v.ivaRate}%)</td><td class="right">${fmt.format(v.iva)}</td></tr>
+            <tr><td colspan="3" class="right">Total</td><td class="right">${fmt.format(v.total)}</td></tr>
+          </tfoot>
+        </table>
+        <p class="muted" style="font-size:12px">Documento no válido como boleta electrónica del SII. Uso interno.</p>
       `;
-      // Ensure printable section visible for print
       $('printable').classList.remove('hidden');
       setTimeout(()=> $('printable').classList.add('hidden'), 1000);
     }
 
-    // --- Historial ---
+    // HISTORIAL
     function renderHistorial(){
-      const ventas = store.get('ventas', []);
-      const q = ($('search').value || '').toLowerCase().trim();
-      const tb = $('historial');
-      tb.innerHTML = '';
-      const filtered = ventas.filter(v=>{
-        if (!q) return true;
-        return v.cliente.toLowerCase().includes(q) || v.correlativo.includes(q);
-      }).sort((a,b)=> b.correlativo.localeCompare(a.correlativo));
-      $('count').textContent = `${filtered.length} registros`;
-      filtered.forEach(v=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="mono">${v.correlativo}</td>
-          <td>${v.fecha}</td>
-          <td>${v.cliente}</td>
-          <td class="right mono">${fmt.format(v.total)}</td>
-          <td class="right">
-            <button class="btn" onclick='openVenta("${v.correlativo}")'>Abrir</button>
-          </td>
-        `;
-        tb.appendChild(tr);
-      });
-    }
-
-    function openVenta(correlativo){
-      const ventas = store.get('ventas', []);
-      const v = ventas.find(x=>x.correlativo===correlativo);
-      if (!v) return alert('No encontrada');
-      renderReceipt(v);
-      // Scroll to top for print preview behavior on phones
-      window.scrollTo({top:0, behavior:'smooth'});
-    }
-
-    // --- Admin ---
-    function unlock(){
-      const pin = store.get('pin', '1234');
-      const input = $('pin').value;
-      if (input === pin){
-        $('admin-locked').classList.add('hidden');
-        $('admin-panel').classList.remove('hidden');
-        renderProductosTable();
-        $('iva-input').value = store.get('iva', 19);
-      } else {
-        alert('PIN incorrecto');
+      const q = ($('buscarHist').value||'').toLowerCase();
+      const ventas = store.get('ventas',[]).filter(v =>
+        v.cliente.toLowerCase().includes(q) || String(v.correlativo).includes(q)
+      ).sort((a,b)=> b.correlativo - a.correlativo);
+      const cont = $('historial');
+      cont.innerHTML = '';
+      for (const v of ventas){
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `
+          <div>
+            <div class="title-sm">Boleta N° ${v.correlativo} — ${v.fecha}</div>
+            <div class="muted">Cliente: ${v.cliente} · Total: ${fmt.format(v.total)}</div>
+          </div>
+          <button class="pill-btn" onclick="abrirBoleta(${v.correlativo})">Ver</button>`;
+        cont.appendChild(div);
       }
     }
 
-    function renderProductosTable(){
-      const productos = store.get('productos', []);
-      const tb = $('productos-table');
-      tb.innerHTML = '';
-      productos.forEach(p=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${p.nombre}</td>
-          <td class="right mono">${fmt.format(p.precio)}</td>
-          <td class="right">
-            <button class="btn" onclick='editProducto("${p.id}")'>Editar</button>
-            <button class="btn danger" onclick='delProducto("${p.id}")'>Eliminar</button>
-          </td>`;
-        tb.appendChild(tr);
-      });
-      renderProductosSelect();
+    function abrirBoleta(correlativo){
+      const v = store.get('ventas',[]).find(x=>x.correlativo===correlativo);
+      if (!v) return;
+      renderReceipt(v);
+      window.scrollTo({top:0,behavior:'smooth'});
+      window.print();
     }
 
-    function addProducto(){
-      const nombre = $('prod-nombre').value.trim();
-      const precio = Number($('prod-precio').value);
-      if (!nombre || !(precio >= 0)) return alert('Datos inválidos');
-      const productos = store.get('productos', []);
-      productos.push({ id: crypto.randomUUID(), nombre, precio });
+    // PRODUCTOS
+    function renderCatalogo(){
+      const cont = $('catalogo');
+      const productos = store.get('productos',[]);
+      cont.innerHTML = '';
+      for (const p of productos){
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `
+          <div>
+            <div class="title-sm">${p.nombre}</div>
+            <div class="muted">${fmt.format(p.precio)}</div>
+          </div>
+          <div class="btns">
+            <button class="pill-btn" onclick="editarProducto('${p.id}')">Editar</button>
+            <button class="pill-btn ghost" onclick="eliminarProducto('${p.id}')">Eliminar</button>
+          </div>`;
+        cont.appendChild(div);
+      }
+    }
+
+    function agregarProducto(){
+      const nombre = ($('prod-nombre').value||'').trim();
+      const precio = Number($('prod-precio').value||'0');
+      if (!nombre || !(precio>=0)) { alert('Completa nombre y precio.'); return; }
+      const productos = store.get('productos',[]);
+      productos.push({id:crypto.randomUUID(), nombre, precio});
       store.set('productos', productos);
-      $('prod-nombre').value = ''; $('prod-precio').value = '';
-      renderProductosTable();
+      $('prod-nombre').value=''; $('prod-precio').value='';
+      renderCatalogo(); renderListaProductos();
     }
-
-    function editProducto(id){
-      const productos = store.get('productos', []);
+    function cancelNuevo(){ $('prod-nombre').value=''; $('prod-precio').value=''; }
+    function editarProducto(id){
+      const productos = store.get('productos',[]);
       const p = productos.find(x=>x.id===id); if (!p) return;
-      const nuevo = prompt('Nuevo precio CLP para ' + p.nombre, p.precio);
+      const nuevo = prompt('Nuevo precio para '+p.nombre, p.precio);
       if (nuevo===null) return;
-      const val = Number(nuevo);
-      if (!(val>=0)) return alert('Precio inválido');
-      p.precio = val;
+      const val = Number(nuevo); if (!(val>=0)) return alert('Precio inválido');
+      p.precio = val; store.set('productos', productos);
+      renderCatalogo(); renderListaProductos();
+    }
+    function eliminarProducto(id){
+      const productos = store.get('productos',[]).filter(x=>x.id!==id);
       store.set('productos', productos);
-      renderProductosTable();
+      renderCatalogo(); renderListaProductos();
     }
 
-    function delProducto(id){
-      const productos = store.get('productos', []);
-      const arr = productos.filter(x=>x.id!==id);
-      store.set('productos', arr);
-      renderProductosTable();
-    }
-
-    function changePIN(){
-      const p1 = $('pin1').value, p2 = $('pin2').value;
-      if (!p1 || p1!==p2) return alert('PIN no coincide');
-      store.set('pin', p1);
-      $('pin1').value=''; $('pin2').value='';
-      alert('PIN actualizado');
-    }
-
-    function exportBackup(){
-      const data = {
-        productos: store.get('productos', []),
-        ventas: store.get('ventas', []),
-        nextCorrelativo: store.get('nextCorrelativo', 1),
-        iva: store.get('iva', 19),
-        pin: store.get('pin', '1234')
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'miniboleta-backup.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importBackup(file){
-      const reader = new FileReader();
-      reader.onload = (e)=>{
-        try{
-          const data = JSON.parse(e.target.result);
-          for (const k of ['productos','ventas','nextCorrelativo','iva','pin']){
-            if (k in data) store.set(k, data[k]);
-          }
-          alert('Importación completa');
-          renderProductosTable();
-          renderProductosSelect();
-          renderHistorial();
-        }catch(err){ alert('Archivo inválido'); }
-      };
-      reader.readAsText(file);
-    }
-
-    function resetTodo(){
-      if (!confirm('Esto borrará todo. ¿Seguro?')) return;
-      localStorage.clear();
-      init();
-      alert('Reiniciado');
-    }
-
-    // Persist IVA changes
-    $('iva-input')?.addEventListener('change', (e)=>{
-      const val = Number(e.target.value || 19);
-      store.set('iva', val);
-      $('iva-rate').textContent = val;
-      renderItems();
-    });
-
-    // Init
+    // Start
     init();
   </script>
 </body>
