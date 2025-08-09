@@ -86,7 +86,7 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
     <p class="muted" style="margin-top:0">Inicia sesión con tu RUT y PIN de 6 dígitos o crea una cuenta.</p>
     <div id="loginForm">
       <label>RUT</label><input id="login-rut" placeholder="12345678-9">
-      <label style="margin-top:8px;">PIN (6 dígitos)</label><input id="login-pin" type="password" inputmode="numeric" pattern="\\d{6}" placeholder="••••••" maxlength="6">
+      <label style="margin-top:8px;">PIN (6 dígitos)</label><input id="login-pin" type="password" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••" maxlength="6">
       <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px">
         <button class="btn" onclick="doLogin()">Entrar</button>
         <button class="btn" onclick="switchAuth()">Registrarse</button>
@@ -97,7 +97,7 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
     <div id="registerForm" class="hidden">
       <label>Nombre y Apellido</label><input id="reg-name" placeholder="Ej: César Díaz">
       <label style="margin-top:8px;">RUT</label><input id="reg-rut" placeholder="12345678-9">
-      <label style="margin-top:8px;">PIN (6 dígitos)</label><input id="reg-pin" type="password" inputmode="numeric" pattern="\\d{6}" placeholder="••••••" maxlength="6">
+      <label style="margin-top:8px;">PIN (6 dígitos)</label><input id="reg-pin" type="password" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••" maxlength="6">
       <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px">
         <button class="btn" onclick="doRegister()">Crear cuenta</button>
         <button class="btn" onclick="switchAuth()">Ya tengo cuenta</button>
@@ -201,7 +201,7 @@ function markThemeButtons(t){ ['btn-light','btn-dark'].forEach(id=>{const el=$(i
 function setThemeSel(t){ setTheme(t); markThemeButtons(t); }
 applyTheme(); markThemeButtons(localStorage.getItem('theme')||'light');
 
-// ---------- RUT: autoformato (sin puntos, con guion automático) ----------
+// ---------- RUT: autoformato (sin puntos, con guion) ----------
 function formatRutHyphenOnly(raw){
   let r = (raw||'').toUpperCase().replace(/[^0-9K]/g,'');
   if(r.length<=1) return r;
@@ -214,6 +214,14 @@ function attachRutMask(id){
   el.addEventListener('input', ()=>{
     const cleaned = (el.value||'').toUpperCase().replace(/[^0-9K]/g,'');
     el.value = formatRutHyphenOnly(cleaned);
+  });
+}
+
+// ---------- PIN: fuerza dígitos y largo 6 ----------
+function attachPinMask(id){
+  const el=$(id); if(!el) return;
+  el.addEventListener('input', ()=>{
+    el.value = (el.value||'').replace(/\\D/g,'').slice(0,6);
   });
 }
 
@@ -230,21 +238,23 @@ function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerFor
 function doRegister(){
   const name=$('reg-name').value.trim();
   const rutMasked=$('reg-rut').value;
-  const pin=$('reg-pin').value.trim();
-  if(!name||!rutMasked||!/^\\d{6}$/.test(pin)) return alert('Completa nombre, RUT y un PIN de 6 dígitos.');
+  let pin=$('reg-pin').value;
+  pin = (pin||'').replace(/\\D/g,''); // solo dígitos
+  if(!name||!rutMasked||pin.length!==6){ alert('Completa nombre, RUT y un PIN de 6 dígitos.'); return; }
   const rut= (rutMasked||'').toUpperCase().replace(/[^0-9K]/g,''); // clave interna
   const u=users();
-  if(u.some(x=>(x.rut||'')===rut)) return alert('Ese RUT ya está registrado.');
+  if(u.some(x=>(x.rut||'')===rut)) { alert('Ese RUT ya está registrado.'); return; }
   u.push({rut, pin, name}); saveUsers(u); setSession({rut, name});
   bootApp();
 }
 
 function doLogin(){
   const rutMasked=$('login-rut').value;
-  const pin=$('login-pin').value.trim();
+  let pin=$('login-pin').value;
+  pin = (pin||'').replace(/\\D/g,''); // solo dígitos
   const rut= (rutMasked||'').toUpperCase().replace(/[^0-9K]/g,'');
   const u = users().find(x=>(x.rut||'')===rut && (x.pin||'')===pin);
-  if(!u){ $('login-hint').textContent='RUT o PIN inválidos. El PIN debe ser de 6 dígitos.'; alert('No se pudo iniciar sesión'); return; }
+  if(!u){ $('login-hint').textContent='RUT o PIN inválidos. Revisa que el PIN tenga 6 dígitos.'; alert('No se pudo iniciar sesión'); return; }
   setSession({rut:u.rut, name:u.name}); bootApp();
 }
 
@@ -257,6 +267,7 @@ function logout(){
 }
 
 attachRutMask('login-rut'); attachRutMask('reg-rut');
+attachPinMask('login-pin'); attachPinMask('reg-pin');
 
 // Namespaced storage por RUT
 function nsKey(k){ const s=getSession(); const uid=s?.rut||'anon'; return 'RUT:'+uid+':'+k; }
