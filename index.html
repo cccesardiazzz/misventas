@@ -11,10 +11,11 @@
       --bg:#eef0f4; --surface:#ffffff; --text:#0b1220; --muted:#687182;
       --border:#E5E7EB; --pill:#0f172a; --pillText:#ffffff; --soft:#f3f4f6;
       --radius:16px; --shadow:0 6px 22px rgba(2,6,23,.06);
+      --mono:#0b1220;
     }
     [data-theme="dark"]{
       --bg:#0b1220; --surface:#0f172a; --text:#eef0f4; --muted:#B7C1D1;
-      --border:#1f2937; --pill:#111827; --pillText:#fff; --soft:#111827;
+      --border:#1f2937; --pill:#111827; --pillText:#fff; --soft:#111827; --mono:#eef0f4;
       --shadow:0 6px 22px rgba(0,0,0,.5);
     }
     *{box-sizing:border-box}
@@ -22,9 +23,12 @@
     header{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border)}
     .wrap{max-width:980px;margin:0 auto;padding:30px 16px 30px}
     .header-row{display:flex;align-items:center;gap:12px;justify-content:space-between}
-    .logo-title{font-size:30px;font-weight:900;letter-spacing:.2px}
-    nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
-    .tab,.btn-main{appearance:none;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:18px 0;border-radius:999px;font-weight:900;text-align:center;font-size:17px;cursor:pointer}
+    .logo-title{font-size:36px;font-weight:900;letter-spacing:.2px}
+    .right-actions{display:flex;gap:10px;align-items:center}
+    .circle{width:40px;height:40px;border-radius:999px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--text);font-weight:900;cursor:pointer}
+    .gear::before{content:"⚙️"}
+    nav{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:20px}
+    .btn,.tab{appearance:none;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:16px 16px;border-radius:999px;font-weight:900;text-align:center;font-size:16px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .tab.active{background:var(--pill);color:var(--pillText);border-color:var(--pill)}
     .container{max-width:980px;margin:0 auto;padding:12px 16px}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
@@ -43,10 +47,9 @@
     .sheet .handle{width:50px;height:6px;background:#e5e7eb;border-radius:999px;margin:10px auto}
     .sheet .body{padding:8px 14px 16px;overflow:auto;max-height:60vh}
     .sheet .item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
-    footer{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:10px 16px}
-    .footer-row{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:980px;margin:0 auto}
-    .theme-icons{display:flex;gap:10px;align-items:center}
-    .icon-btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;font-size:18px;cursor:pointer}
+    .theme-toggle{display:flex;gap:10px}
+    .theme-chip{border:1px solid var(--border);background:var(--surface);color:var(--mono);border-radius:999px;padding:10px 14px;cursor:pointer}
+    .theme-chip.active{background:var(--mono);color:var(--surface)}
   </style>
 </head>
 <body>
@@ -54,11 +57,16 @@
     <div class="wrap">
       <div class="header-row">
         <div class="logo-title">Mis Ventas</div>
+        <div class="right-actions">
+          <div class="circle gear" title="Configuración" onclick="showView('ajustes')"></div>
+          <div class="circle" id="avatarCircle" title="Cuenta"><span id="avatarText">?</span></div>
+        </div>
       </div>
       <nav>
         <button class="tab active" id="tab-vender" onclick="showView('vender')">Vender</button>
         <button class="tab" id="tab-historial" onclick="showView('historial')">Historial</button>
         <button class="tab" id="tab-productos" onclick="showView('productos')">Productos</button>
+        <button class="tab" id="tab-ajustes" onclick="showView('ajustes')">Ajustes</button>
       </nav>
     </div>
   </header>
@@ -117,11 +125,6 @@
 
     <section id="view-productos" class="hidden">
       <div class="card">
-        <div class="title-sm" style="margin-bottom:8px;">IVA</div>
-        <label>IVA (%)</label><input id="iva-input" type="number" min="0" max="100" value="19">
-        <div style="margin-top:10px"><button class="tab" onclick="guardarIVA()">Guardar IVA</button></div>
-      </div>
-      <div class="card">
         <div class="title-sm" style="margin-bottom:8px;">Nuevo producto</div>
         <label>Nombre</label><input id="prod-nombre" placeholder="Nombre">
         <label style="margin-top:8px;">Precio</label><input id="prod-precio" type="number" min="0" placeholder="Precio">
@@ -132,36 +135,38 @@
         <div id="catalogo" class="list"></div>
       </div>
     </section>
+
+    <section id="view-ajustes" class="hidden">
+      <div class="card">
+        <div class="title-sm" style="margin-bottom:8px;">Tema</div>
+        <div class="theme-toggle">
+          <button id="chip-light" class="theme-chip" onclick="setThemeSel('light')">☀ Claro</button>
+          <button id="chip-dark" class="theme-chip" onclick="setThemeSel('dark')">🌙 Oscuro</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="title-sm" style="margin-bottom:8px;">IVA</div>
+        <label>IVA (%)</label><input id="iva-input" type="number" min="0" max="100" value="19">
+        <div style="margin-top:10px"><button class="tab" onclick="guardarIVA()">Guardar IVA</button></div>
+      </div>
+      <div class="card">
+        <button class="tab" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </section>
   </main>
 
   <div class="sheet" id="sheet"><div class="handle"></div><div class="body" id="sheetBody"></div></div>
 
-  <footer id="footer" class="hidden">
-    <div class="footer-row">
-      <button class="tab" style="width:auto;padding:12px 16px" onclick="logout()">Cerrar sesión</button>
-      <div class="theme-icons">
-        <button class="icon-btn" title="Modo claro" onclick="setTheme('light')">☀️</button>
-        <button class="icon-btn" title="Modo oscuro" onclick="setTheme('dark')">🌙</button>
-      </div>
-    </div>
-  </footer>
-
   <script>
     const $ = id => document.getElementById(id);
     const fmt = new Intl.NumberFormat('es-CL',{ style:'currency', currency:'CLP', maximumFractionDigits:0 });
-    function applyTheme(){ const t=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme', t==='dark'?'dark':'light'); }
+    function applyTheme(){ const t=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme', t==='dark'?'dark':'light'); ['chip-light','chip-dark'].forEach(id=>{const el=$(id); if(!el) return; el.classList.remove('active');}); const chip = t==='dark'?'chip-dark':'chip-light'; if($(chip)) $(chip).classList.add('active'); }
     function setTheme(t){ localStorage.setItem('theme', t); applyTheme(); }
+    function setThemeSel(t){ setTheme(t); }
+
     applyTheme();
 
-    const company = {
-      nombre: "MERCADITO QUILICURA SPA",
-      giro: "VENTA DE TODO TIPO DE ALIMENTOS",
-      direccion: "AV. LAS TORRES SUR 191 A",
-      comuna: "Quilicura",
-      ciudad: "Santiago",
-      region: "Región Metropolitana de Santiago",
-      rut: "77.934.268-9"
-    };
+    const company = { nombre:"MERCADITO QUILICURA SPA", giro:"VENTA DE TODO TIPO DE ALIMENTOS", direccion:"AV. LAS TORRES SUR 191 A", comuna:"Quilicura", ciudad:"Santiago", region:"Región Metropolitana de Santiago", rut:"77.934.268-9" };
 
     function users(){ try{return JSON.parse(localStorage.getItem('users'))||[]}catch{return[]} }
     function saveUsers(arr){ localStorage.setItem('users', JSON.stringify(arr)); }
@@ -170,26 +175,8 @@
 
     function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerForm').classList.toggle('hidden'); }
     function normalizaRut(rut){ return rut.replace(/\./g,'').replace(/-/g,'').trim().toUpperCase(); }
-    function doRegister(){
-      const name=$('reg-name').value.trim();
-      const rut=normalizaRut($('reg-rut').value||'');
-      const email=($('reg-email').value||'').trim().toLowerCase();
-      const pass=$('reg-pass').value;
-      if(!name||!rut||!email||!pass) return alert('Completa todos los campos');
-      const u=users();
-      if(u.some(x=>x.rut===rut)) return alert('Ese RUT ya está registrado.');
-      const user={id:crypto.randomUUID(), name, email, pass, rut};
-      u.push(user); saveUsers(u); setSession({id:user.id,name:user.name,email:user.email,rut:user.rut});
-      bootApp();
-    }
-    function doLogin(){
-      const email=($('login-email').value||'').trim().toLowerCase();
-      const pass=$('login-pass').value;
-      const u=users().find(x=>x.email===email && x.pass===pass);
-      if(!u) return alert('Credenciales inválidas');
-      setSession({id:u.id,name:u.name,email:u.email,rut:u.rut});
-      bootApp();
-    }
+    function doRegister(){ const name=$('reg-name').value.trim(); const rut=normalizaRut($('reg-rut').value||''); const email=($('reg-email').value||'').trim().toLowerCase(); const pass=$('reg-pass').value; if(!name||!rut||!email||!pass) return alert('Completa todos los campos'); const u=users(); if(u.some(x=>x.rut===rut)) return alert('Ese RUT ya está registrado.'); const user={id:crypto.randomUUID(), name, email, pass, rut}; u.push(user); saveUsers(u); setSession({id:user.id,name:user.name,email:user.email,rut:user.rut}); bootApp(); }
+    function doLogin(){ const email=($('login-email').value||'').trim().toLowerCase(); const pass=$('login-pass').value; const u=users().find(x=>x.email===email && x.pass===pass); if(!u) return alert('Credenciales inválidas'); setSession({id:u.id,name:u.name,email:u.email,rut:u.rut}); bootApp(); }
     function logout(){ localStorage.removeItem('session'); location.reload(); }
 
     function nsKey(k){ const s=getSession(); const uid=s?.id||'anon'; return uid+':'+k; }
@@ -209,170 +196,37 @@
       for(const [k,v] of Object.entries(defaults)){ if(store.get(k)==null) store.set(k,v); }
       $('iva-rate').textContent=store.get('iva',19); $('iva-input').value=store.get('iva',19);
       renderCatalogo(); renderPickerList(); renderCarro(); renderHistorial();
-      $('appHeader').classList.remove('hidden'); $('view-auth').classList.add('hidden'); $('footer').classList.remove('hidden');
-      showView('vender');
+      const s=getSession(); const initials=s?.name?.split(' ').map(x=>x[0]?.toUpperCase()).slice(0,2).join('')||'?'; $('avatarText').textContent=initials;
+      $('appHeader').classList.remove('hidden'); $('view-auth').classList.add('hidden'); showView('vender');
       if('serviceWorker' in navigator){ navigator.serviceWorker.register('./service-worker.js'); }
     }
 
-    function showView(v){
-      ['vender','historial','productos'].forEach(x=>{ $('view-'+x).classList.toggle('hidden', x!==v); $('tab-'+x).classList.toggle('active', x===v); });
-      if(v==='historial') renderHistorial(); if(v==='productos') renderCatalogo();
-    }
+    function showView(v){ ['vender','historial','productos','ajustes'].forEach(x=>{ const view=$('view-'+x); if(view) view.classList.toggle('hidden', x!==v); const tab=$('tab-'+x); if(tab) tab.classList.toggle('active', x===v); }); if(v==='historial') renderHistorial(); if(v==='productos') renderCatalogo(); applyTheme(); }
 
     function openPicker(){ $('sheet').classList.add('open'); }
     function closePicker(){ $('sheet').classList.remove('open'); }
-    function renderPickerList(){
-      const cont=$('sheetBody'); cont.innerHTML='';
-      const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-      for(const p of productos){
-        const row=document.createElement('div'); row.className='item';
-        row.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div><button class='tab' onclick="addFromPicker('${p.id}')">Agregar</button>`;
-        cont.appendChild(row);
-      }
-    }
+    function renderPickerList(){ const cont=$('sheetBody'); cont.innerHTML=''; const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre)); for(const p of productos){ const row=document.createElement('div'); row.className='item'; row.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div><button class='tab' onclick="addFromPicker('${p.id}')">Agregar</button>`; cont.appendChild(row);} }
     function addFromPicker(id){ agregarAlCarro(id); closePicker(); }
 
-    function agregarAlCarro(id){
-      const prod=store.get('productos',[]).find(x=>x.id===id); if(!prod) return;
-      const ex=carro.find(x=>x.idProd===id); if(ex) ex.qty+=1; else carro.push({idProd:id,nombre:prod.nombre,precio:prod.precio,qty:1}); renderCarro();
-    }
-    function renderCarro(){
-      const cont=$('carro'); if(carro.length===0){ cont.innerHTML='<span class="muted">Sin productos aún.</span>'; updateTotals(); return; }
-      cont.innerHTML=''; for(const it of carro){
-        const row=document.createElement('div'); row.className='cart-row';
-        row.innerHTML=`<div><div class='title-sm'>${it.nombre}</div></div><div class='qty'><button onclick="decQty('${it.idProd}')">−</button><strong>${it.qty}</strong><button onclick="incQty('${it.idProd}')">+</button></div><div class='right'><strong>${fmt.format(it.precio*it.qty)}</strong></div>`;
-        cont.appendChild(row);
-      } updateTotals();
-    }
+    function agregarAlCarro(id){ const prod=store.get('productos',[]).find(x=>x.id===id); if(!prod) return; const ex=carro.find(x=>x.idProd===id); if(ex) ex.qty+=1; else carro.push({idProd:id,nombre:prod.nombre,precio:prod.precio,qty:1}); renderCarro(); }
+    function renderCarro(){ const cont=$('carro'); if(carro.length===0){ cont.innerHTML='<span class="muted">Sin productos aún.</span>'; updateTotals(); return; } cont.innerHTML=''; for(const it of carro){ const row=document.createElement('div'); row.className='cart-row'; row.innerHTML=`<div><div class='title-sm'>${it.nombre}</div></div><div class='qty'><button onclick="decQty('${it.idProd}')">−</button><strong>${it.qty}</strong><button onclick="incQty('${it.idProd}')">+</button></div><div class='right'><strong>${fmt.format(it.precio*it.qty)}</strong></div>`; cont.appendChild(row);} updateTotals(); }
     function incQty(id){ const it=carro.find(x=>x.idProd===id); if(!it) return; it.qty++; renderCarro(); }
     function decQty(id){ const it=carro.find(x=>x.idProd===id); if(!it) return; it.qty--; if(it.qty<=0) carro=carro.filter(x=>x.idProd!==id); renderCarro(); }
     function calcTotals(){ const ivaRate=store.get('iva',19); const neto=carro.reduce((s,i)=>s+i.precio*i.qty,0); const iva=Math.round(neto*ivaRate/100); const total=neto+iva; return {neto,iva,total,ivaRate}; }
     function updateTotals(){ const t=calcTotals(); $('neto').textContent=fmt.format(t.neto); $('iva').textContent=fmt.format(t.iva); $('total').textContent=fmt.format(t.total); }
 
-    function makePDF(textLines){
-      let pdf = '%PDF-1.4\n';
-      const xref = [0];
-      const objs = [];
-      function addObject(content){
-        const offset = pdf.length;
-        xref.push(offset);
-        const objStr = (objs.length+1) + ' 0 obj\n' + content + '\nendobj\n';
-        pdf += objStr;
-        objs.push(objStr);
-        return objs.length;
-      }
-      const fontObj = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>');
-      let stream = 'BT /F1 11 Tf 50 800 Td 0 -16 Td\n';
-      for(const line of textLines){
-        const safe=line.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
-        stream += '('+safe+') Tj T*\n';
-      }
-      stream += 'ET';
-      const contentObj = addObject('<< /Length '+stream.length+' >>\nstream\n'+stream+'\nendstream');
-      const pageObj = addObject('<< /Type /Page /Parent 4 0 R /MediaBox [0 0 595 842] /Contents '+contentObj+' 0 R /Resources << /Font << /F1 '+fontObj+' 0 R >> >> >>');
-      const pagesObj = addObject('<< /Type /Pages /Kids ['+pageObj+' 0 R] /Count 1 >>');
-      const catalogObj = addObject('<< /Type /Catalog /Pages '+pagesObj+' 0 R >>');
-      const xrefOffset = pdf.length;
-      pdf += 'xref\n0 '+(objs.length+1)+'\n';
-      pdf += '0000000000 65535 f \n';
-      for(let i=1;i<xref.length;i++){ pdf += String(xref[i]).padStart(10,'0')+' 00000 n \n'; }
-      pdf += 'trailer\n<< /Size '+(objs.length+1)+' /Root '+catalogObj+' 0 R >>\nstartxref\n'+xrefOffset+'\n%%EOF';
-      return new Blob([new TextEncoder().encode(pdf)], {type:'application/pdf'});
-    }
-    function linesFromVenta(v){
-      const lines=[];
-      lines.push('RUT: '+company.rut+'   |   BOLETA ELECTRÓNICA N° '+v.correlativo);
-      lines.push('');
-      lines.push(company.nombre);
-      lines.push('Giro: '+company.giro);
-      lines.push('Dirección: '+company.direccion);
-      lines.push(company.comuna+', '+company.ciudad+', '+company.region);
-      lines.push('Fecha de Emisión: '+v.fecha);
-      lines.push('');
-      lines.push('DETALLE DEL DOCUMENTO');
-      lines.push('Nombre                               Cant.   P.Unit     Subtotal');
-      lines.push('----------------------------------------------------------------');
-      for(const i of v.items){
-        const subtotal=i.precio*i.cantidad;
-        const name=(i.nombre+'                                ').slice(0,35);
-        const line=name+'  '+String(i.cantidad).padStart(3,' ')+'   '+fmt.format(i.precio).padStart(8,' ')+'   '+fmt.format(subtotal).padStart(10,' ');
-        lines.push(line);
-      }
-      lines.push('');
-      lines.push('RESUMEN DEL DOCUMENTO');
-      lines.push('Neto:   '+fmt.format(v.neto));
-      lines.push('IVA ('+v.ivaRate+'%):   '+fmt.format(v.iva));
-      lines.push('TOTAL:  '+fmt.format(v.total));
-      return lines;
-    }
+    function drawReceiptToCanvas(v){ const W=900, H= Math.max(600, 300 + v.items.length*40); const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H; const ctx = canvas.getContext('2d'); const bg = '#ffffff'; const fg = '#111111'; const line='#0aa36e'; ctx.fillStyle=bg; ctx.fillRect(0,0,W,H); ctx.fillStyle=fg; ctx.font='bold 22px Arial'; let x=40, y=50; ctx.fillText(company.nombre, x, y); y+=26; ctx.font='16px Arial'; ctx.fillText('Giro: '+company.giro, x, y); y+=22; ctx.fillText('Dirección: '+company.direccion, x, y); y+=22; ctx.fillText(company.comuna+', '+company.ciudad+', '+company.region, x, y); ctx.textAlign='right'; ctx.font='bold 28px Arial'; ctx.fillText('N° '+v.correlativo, W-40, 60); ctx.font='16px Arial'; ctx.fillText('RUT: '+company.rut, W-40, 88); ctx.textAlign='left'; ctx.fillText('Fecha de Emisión: '+v.fecha, 40, 130); ctx.strokeStyle=line; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(30,150); ctx.lineTo(W-30,150); ctx.stroke(); ctx.font='bold 16px Arial'; ctx.fillText('Nombre', 40, 175); ctx.fillText('Cant.', 520, 175); ctx.fillText('P. Unitario', 600, 175); ctx.fillText('Subtotal', 740, 175); ctx.beginPath(); ctx.moveTo(30,185); ctx.lineTo(W-30,185); ctx.stroke(); ctx.font='16px Arial'; let iy=210; const money = n => new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n); for(const it of v.items){ const name = it.nombre.length>45 ? it.nombre.slice(0,45)+'…' : it.nombre; ctx.fillText(name, 40, iy); ctx.fillText(String(it.cantidad), 520, iy); ctx.fillText(money(it.precio), 600, iy); ctx.fillText(money(it.precio*it.cantidad), 740, iy); iy+=26; } const sy = iy+20; ctx.strokeStyle=line; ctx.strokeRect(560, sy-40, 300, 90); ctx.font='16px Arial'; ctx.fillText('Neto: '+money(v.neto), 580, sy); ctx.fillText('IVA ('+v.ivaRate+'%): '+money(v.iva), 580, sy+24); ctx.font='bold 18px Arial'; ctx.fillText('Total: '+money(v.total), 580, sy+48); return canvas; }
+    async function shareReceiptImage(v){ const canvas = drawReceiptToCanvas(v); const blob = await new Promise(res => canvas.toBlob(res, 'image/png')); const file = new File([blob], `Boleta_${v.correlativo}.png`, {type:'image/png'}); if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], title:'Boleta', text:`Boleta N° ${v.correlativo}`}); }catch(e){} } else { const url=URL.createObjectURL(file); const a=document.createElement('a'); a.href=url; a.download=file.name; a.click(); URL.revokeObjectURL(url); } }
 
-    async function compartirYGuardar(){
-      if(carro.length===0){ alert('Agrega productos al carro.'); return; }
-      const ventas=store.get('ventas',[]);
-      const next=store.get('nextCorrelativo',100);
-      const correlativo=next+1;
-      const t=calcTotals();
-      const v={ correlativo, fecha:new Date().toISOString().slice(0,16).replace('T',' '), cliente:($('cliente').value||'Consumidor Final'), items:carro.map(i=>({nombre:i.nombre,precio:i.precio,cantidad:i.qty})), neto:t.neto, iva:t.iva, total:t.total, ivaRate:t.ivaRate };
-      ventas.push(v); store.set('ventas',ventas); store.set('nextCorrelativo',correlativo);
-      const pdfBlob = makePDF(linesFromVenta(v));
-      const file = new File([pdfBlob], `Boleta_${v.correlativo}.pdf`, {type:'application/pdf'});
-      if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], title:'Boleta', text:`Boleta N° ${v.correlativo}`}); }catch(e){} }
-      else { const url=URL.createObjectURL(file); const a=document.createElement('a'); a.href=url; a.download=file.name; a.click(); URL.revokeObjectURL(url); }
-      nuevaVenta(); renderHistorial();
-    }
+    async function compartirYGuardar(){ if(carro.length===0){ alert('Agrega productos al carro.'); return; } const ventas=store.get('ventas',[]); const next=store.get('nextCorrelativo',100); const correlativo=next+1; const t=calcTotals(); const v={ correlativo, fecha:new Date().toISOString().slice(0,16).replace('T',' '), cliente:($('cliente').value||'Consumidor Final'), items:carro.map(i=>({nombre:i.nombre,precio:i.precio,cantidad:i.qty})), neto:t.neto, iva:t.iva, total:t.total, ivaRate:t.ivaRate }; ventas.push(v); store.set('ventas',ventas); store.set('nextCorrelativo',correlativo); await shareReceiptImage(v); nuevaVenta(); renderHistorial(); }
     function nuevaVenta(){ carro=[]; $('cliente').value=''; updateTotals(); renderCarro(); }
 
-    function renderVentaDetalleHTML(v){
-      const items=v.items.map(i=>`<div style="display:flex;justify-content:space-between;"><span>${i.nombre} · ${i.cantidad} x ${fmt.format(i.precio)}</span><strong>${fmt.format(i.precio*i.cantidad)}</strong></div>`).join('');
-      return `<div>
-        <div class="muted">Cliente: ${v.cliente}</div>
-        ${items}
-        <hr/>
-        <div style="display:flex;justify-content:space-between;"><span>Neto</span><strong>${fmt.format(v.neto)}</strong></div>
-        <div style="display:flex;justify-content:space-between;"><span>IVA (${v.ivaRate}%)</span><strong>${fmt.format(v.iva)}</strong></div>
-        <div style="display:flex;justify-content:space-between;"><span>Total</span><strong>${fmt.format(v.total)}</strong></div>
-        <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-          <button class="tab" style="width:150px" onclick="compartirDesdeHist(${v.correlativo})">Compartir</button>
-        </div>
-      </div>`;
-    }
-    function renderHistorial(){
-      const ventas=store.get('ventas',[]).sort((a,b)=>b.correlativo-a.correlativo);
-      const cont=$('historial'); cont.innerHTML='';
-      for(const v of ventas){
-        const div=document.createElement('div'); div.className='list-item';
-        div.innerHTML = `
-          <div style="flex:1 1 auto; min-width:0;">
-            <div class="title-sm">Boleta N° ${v.correlativo} — ${v.fecha}</div>
-            <div class="muted">Cliente: ${v.cliente} · Total: ${fmt.format(v.total)}</div>
-            <div id="exp-${v.correlativo}" class="hidden" style="margin-top:8px;">${renderVentaDetalleHTML(v)}</div>
-          </div>
-          <div style="flex:0 0 150px; display:flex; justify-content:flex-end;">
-            <button class="tab" style="width:150px" onclick="toggleVer(${v.correlativo})">Ver</button>
-          </div>`;
-        cont.appendChild(div);
-      }
-    }
+    function renderVentaDetalleHTML(v){ const items=v.items.map(i=>`<div style="display:flex;justify-content:space-between;"><span>${i.nombre} · ${i.cantidad} x ${fmt.format(i.precio)}</span><strong>${fmt.format(i.precio*i.cantidad)}</strong></div>`).join(''); return `<div><div class="muted">Cliente: ${v.cliente}</div>${items}<hr/><div style="display:flex;justify-content:space-between;"><span>Neto</span><strong>${fmt.format(v.neto)}</strong></div><div style="display:flex;justify-content:space-between;"><span>IVA (${v.ivaRate}%)</span><strong>${fmt.format(v.iva)}</strong></div><div style="display:flex;justify-content:space-between;"><span>Total</span><strong>${fmt.format(v.total)}</strong></div><div style="display:flex; justify-content:flex-end; margin-top:8px;"><button class="tab" style="width:150px" onclick="compartirDesdeHist(${v.correlativo})">Compartir</button></div></div>`; }
+    function renderHistorial(){ const ventas=store.get('ventas',[]).sort((a,b)=>b.correlativo-a.correlativo); const cont=$('historial'); cont.innerHTML=''; for(const v of ventas){ const div=document.createElement('div'); div.className='list-item'; div.innerHTML = `<div style="flex:1 1 auto; min-width:0;"><div class="title-sm">Boleta N° ${v.correlativo} — ${v.fecha}</div><div class="muted">Cliente: ${v.cliente} · Total: ${fmt.format(v.total)}</div><div id="exp-${v.correlativo}" class="hidden" style="margin-top:8px;">${renderVentaDetalleHTML(v)}</div></div><div style="flex:0 0 150px; display:flex; justify-content:flex-end;"><button class="tab" style="width:150px" onclick="toggleVer(${v.correlativo})">Ver</button></div>`; cont.appendChild(div);} }
     function toggleVer(c){ const el=$('exp-'+c); if(el) el.classList.toggle('hidden'); }
-    async function compartirDesdeHist(c){
-      const ventas=store.get('ventas',[]); const v=ventas.find(x=>x.correlativo===c); if(!v) return;
-      const pdfBlob = makePDF(linesFromVenta(v));
-      const file = new File([pdfBlob], `Boleta_${v.correlativo}.pdf`, {type:'application/pdf'});
-      if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], title:'Boleta', text:`Boleta N° ${v.correlativo}`}); }catch(e){} }
-      else { const url=URL.createObjectURL(file); const a=document.createElement('a'); a.href=url; a.download=file.name; a.click(); URL.revokeObjectURL(url); }
-    }
+    async function compartirDesdeHist(c){ const ventas=store.get('ventas',[]); const v=ventas.find(x=>x.correlativo===c); if(!v) return; await shareReceiptImage(v); }
 
-    function renderCatalogo(){
-      const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre)); const cont=$('catalogo'); cont.innerHTML='';
-      for(const p of productos){
-        const li=document.createElement('div'); li.className='list-item';
-        li.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div>
-                      <div><button class='tab' onclick="editarProducto('${p.id}')">Editar</button>
-                      <button class='tab' onclick="eliminarProducto('${p.id}')">Eliminar</button></div>`;
-        cont.appendChild(li);
-      }
-      renderPickerList();
-    }
+    function renderCatalogo(){ const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre)); const cont=$('catalogo'); cont.innerHTML=''; for(const p of productos){ const li=document.createElement('div'); li.className='list-item'; li.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div><div><button class='tab' onclick="editarProducto('${p.id}')">Editar</button> <button class='tab' onclick="eliminarProducto('${p.id}')">Eliminar</button></div>`; cont.appendChild(li);} renderPickerList(); }
     function guardarIVA(){ const val=Number($('iva-input').value||19); if(!(val>=0 && val<=100)) return alert('IVA inválido'); store.set('iva',val); $('iva-rate').textContent=val; updateTotals(); alert('IVA guardado'); }
     function agregarProducto(){ const nombre=($('prod-nombre').value||'').trim(); const precio=Number($('prod-precio').value||'0'); if(!nombre || !(precio>=0)) return alert('Completa nombre y precio.'); const productos=store.get('productos',[]); productos.push({id:crypto.randomUUID(), nombre, precio}); store.set('productos',productos); $('prod-nombre').value=''; $('prod-precio').value=''; renderCatalogo(); }
     function editarProducto(id){ const productos=store.get('productos',[]); const p=productos.find(x=>x.id===id); if(!p) return; const nuevo=prompt('Nuevo precio para '+p.nombre, p.precio); if(nuevo===null) return; const val=Number(nuevo); if(!(val>=0)) return alert('Precio inválido'); p.precio=val; store.set('productos',productos); renderCatalogo(); }
