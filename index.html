@@ -12,13 +12,13 @@
   --border:#E5E7EB; --soft:#f3f4f6; --radius:16px; --shadow:0 6px 22px rgba(2,6,23,.06);
   --btn:#000000; --btnText:#ffffff; --btnBorder:#000000;
   --green:#10a37f; --red:#e11d48; --blue:#007BFF;
-  --tabRing:#111827; /* light: dark gray ring */
+  --tabRing:#111827; /* LIGHT: dark gray */
 }
 [data-theme="dark"]{
   --bg:#0b1220; --surface:#0f172a; --text:#eef0f4; --muted:#B7C1D1;
   --border:#1f2937; --soft:#111827; --shadow:0 6px 22px rgba(0,0,0,.5);
   --btn:var(--blue); --btnText:#ffffff; --btnBorder:var(--blue);
-  --tabRing:#FFFFFF; /* dark: white ring */
+  --tabRing:#FFFFFF; /* DARK: white */
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial,sans-serif;color:var(--text)}
@@ -31,8 +31,7 @@ header{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:
 [data-theme="dark"] .circle{ border-color:#ffffff; } 
 nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
 .btn,.tab{appearance:none;border:2px solid var(--btnBorder);background:var(--btn);color:var(--btnText);padding:12px 16px;border-radius:999px;font-weight:900;text-align:center;font-size:16px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.15s}
-/* Active tab ring must stay visible; also apply on :focus-visible for accessibility */
-.tab.active{ box-shadow: 0 0 0 2px var(--tabRing); }
+.tab.active{ box-shadow: 0 0 0 2px var(--tabRing); } /* ring always visible */
 .tab:focus-visible{ outline:none; box-shadow: 0 0 0 2px var(--tabRing); }
 .container{max-width:980px;margin:0 auto;padding:12px 16px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
@@ -44,30 +43,37 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
 .list-item{position:relative; display:flex;align-items:flex-start;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
 .muted{color:var(--muted)}.right{text-align:right}.hidden{display:none !important}
 .picker{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:12px;cursor:pointer}
-/* Carro grid aligned with tabular numbers */
-.cart-row{display:grid;grid-template-columns:1fr 180px 160px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+/* --- Carro: strict alignment, no overflow --- */
+.cart-row{display:grid;grid-template-columns: minmax(0,1fr) 150px 120px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.cart-row .name{min-width:0;word-break:break-word}
 .qty{display:flex;align-items:center;gap:10px;justify-content:center;text-align:center;font-variant-numeric: tabular-nums}
 .qty strong{min-width:24px;text-align:center;display:inline-block}
 .qty button{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer}
-.price{font-variant-numeric: tabular-nums; text-align:right; display:block; min-width:140px}
+.price{font-variant-numeric: tabular-nums; text-align:right; display:block; min-width:0}
+@media (max-width: 380px){
+  .cart-row{grid-template-columns:minmax(0,1fr) 130px 110px}
+}
+/* --- End Carro --- */
 .sheet{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top-left-radius:16px;border-top-right-radius:16px;max-height:70vh;transform:translateY(100%);transition:.25s;box-shadow:0 -12px 30px rgba(0,0,0,.2);border:1px solid var(--border);touch-action:none}
 .sheet.open{transform:translateY(0)}
 .sheet .handle{width:50px;height:6px;background:#e5e7eb;border-radius:999px;margin:10px auto;cursor:pointer}
 .sheet .body{padding:8px 14px 16px;overflow:auto;max-height:60vh}
 .sheet .item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
 .sheet .footer{display:none}
-.row-actions{display:flex;gap:12px;align-items:center;justify-content:center}
-.link{background:none;border:none;color:#2563eb;text-decoration:underline;cursor:pointer;font-size:13px;padding:0}
+.row-actions{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
 .settings-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .settings-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end}
 .btn--small{padding:10px 14px}
 .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:110px;height:40px}
 .icon-share{width:22px;height:22px;display:inline-block}
-.search{display:flex;gap:10px;align-items:center}
 .center{text-align:center}
 #successOverlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);z-index:100}
 #successCard{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:24px 32px;display:flex;flex-direction:column;align-items:center;gap:10px}
 #successCard .check{width:64px;height:64px;border-radius:999px;background:#10a37f;display:flex;align-items:center;justify-content:center;color:#fff;font-size:38px;font-weight:900}
+/* Historial detalle grid for alignment */
+.detail-row{display:grid;grid-template-columns:minmax(0,1fr) 140px 120px;gap:8px;align-items:center;font-variant-numeric:tabular-nums}
+.detail-row .u{ text-align:right }
+.detail-row .s{ text-align:right }
 </style>
 </head>
 <body>
@@ -88,7 +94,7 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
 </header>
 
 <main class="container">
-  <!-- AUTH (RUT + PIN) -->
+  <!-- AUTH -->
   <section id="view-auth" class="card" style="max-width:420px;margin:28px auto">
     <h2 style="margin:6px 0 10px;">Bienvenido(a)</h2>
     <p class="muted" style="margin-top:0">Inicia sesión con tu RUT y PIN de 6 dígitos o crea una cuenta.</p>
@@ -116,18 +122,9 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
 
   <!-- Vender -->
   <section id="view-vender" class="hidden">
-    <div class="card">
-      <label>Nombre del Cliente</label>
-      <input id="cliente" placeholder="Ej: César Díaz">
-    </div>
-    <div class="card">
-      <label>Fecha y hora</label>
-      <input id="fechaHora" type="datetime-local">
-    </div>
-    <div class="card">
-      <label>Seleccionar el producto</label>
-      <div class="picker" onclick="openPicker()"><span id="pickerLabel">Elegir producto</span><span class="muted">▼</span></div>
-    </div>
+    <div class="card"><label>Nombre del Cliente</label><input id="cliente" placeholder="Ej: César Díaz"></div>
+    <div class="card"><label>Fecha y hora</label><input id="fechaHora" type="datetime-local"></div>
+    <div class="card"><label>Seleccionar el producto</label><div class="picker" onclick="openPicker()"><span id="pickerLabel">Elegir producto</span><span class="muted">▼</span></div></div>
     <div class="card">
       <div class="title-sm" style="margin-bottom:8px;">Carro</div>
       <div id="carro" class="cart"><span class="muted">Sin productos aún.</span></div>
@@ -141,6 +138,7 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
     <div class="card">
       <div class="row-actions">
         <button id="btnCompartir" class="btn btn--small" style="background:var(--green);border-color:var(--green)">Compartir y Guardar</button>
+        <button id="btnPDF" class="btn btn--small">Generar PDF</button>
         <button id="btnLimpiar" class="btn btn--small" style="background:var(--red);border-color:var(--red)">Limpiar</button>
       </div>
     </div>
@@ -148,25 +146,18 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
 
   <!-- Historial -->
   <section id="view-historial" class="hidden">
-    <div class="card">
-      <label>Buscar por N° o cliente</label>
-      <input id="buscar" placeholder="Ej: 0123 o César" oninput="aplicarFiltro()">
-    </div>
+    <div class="card"><label>Buscar por N° o cliente</label><input id="buscar" placeholder="Ej: 0123 o César" oninput="aplicarFiltro()"></div>
     <div id="historial" class="list"></div>
   </section>
 
   <!-- Productos -->
   <section id="view-productos" class="hidden">
-    <div class="card">
-      <div class="title-sm" style="margin-bottom:8px;">Nuevo producto</div>
+    <div class="card"><div class="title-sm" style="margin-bottom:8px;">Nuevo producto</div>
       <label>Nombre</label><input id="prod-nombre" placeholder="Nombre">
       <label style="margin-top:8px;">Precio</label><input id="prod-precio" type="number" min="0" placeholder="Precio">
       <div style="margin-top:10px"><button class="btn" onclick="agregarProducto()">Agregar</button></div>
     </div>
-    <div class="card">
-      <div class="title-sm" style="margin-bottom:8px;">Catálogo</div>
-      <div id="catalogo" class="list"></div>
-    </div>
+    <div class="card"><div class="title-sm" style="margin-bottom:8px;">Catálogo</div><div id="catalogo" class="list"></div></div>
   </section>
 
   <!-- Ajustes -->
@@ -185,27 +176,15 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
         <button class="btn btn--small" style="min-width:150px" onclick="guardarIVA()">Guardar IVA</button>
       </div>
     </div>
-    <div class="card">
-      <div class="center">
-        <button class="btn" style="background:var(--red);border-color:var(--red);min-width:220px" onclick="logout()">Cerrar sesión</button>
-      </div>
-    </div>
+    <div class="card"><div class="center"><button class="btn" style="background:var(--red);border-color:var(--red);min-width:220px" onclick="logout()">Cerrar sesión</button></div></div>
   </section>
 </main>
 
 <div id="backdrop" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(1px)"></div>
-<div class="sheet" id="sheet">
-  <div class="handle" title="Cerrar"></div>
-  <div class="body" id="sheetBody"></div>
-</div>
+<div class="sheet" id="sheet"><div class="handle" title="Cerrar"></div><div class="body" id="sheetBody"></div></div>
 
 <!-- Success overlay (solo desde Vender) -->
-<div id="successOverlay">
-  <div id="successCard">
-    <div class="check">✓</div>
-    <div style="font-weight:800">Venta realizada</div>
-  </div>
-</div>
+<div id="successOverlay"><div id="successCard"><div class="check">✓</div><div style="font-weight:800">Venta realizada</div></div></div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -271,6 +250,7 @@ function bootApp(){
   $('appHeader').classList.remove('hidden'); $('view-auth').classList.add('hidden'); showView('vender');
   if('serviceWorker' in navigator){ navigator.serviceWorker.register('./service-worker.js'); }
   $('btnCompartir').onclick = compartirYGuardar;
+  $('btnPDF').onclick = generarPDFActual;
   $('btnLimpiar').onclick = limpiar;
   const sheet=$('sheet'); // swipe-down to close
   let startY=null;
@@ -321,7 +301,7 @@ function renderCarro(){
   const cont=$('carro'); if(carro.length===0){ cont.innerHTML='<span class="muted">Sin productos aún.</span>'; updateTotals(); return; }
   cont.innerHTML=''; for(const it of carro){
     const row=document.createElement('div'); row.className='cart-row';
-    row.innerHTML=`<div><div class='title-sm'>${it.nombre}</div></div>
+    row.innerHTML=`<div class='name'><div class='title-sm'>${it.nombre}</div></div>
                    <div class='qty'><button onclick="decQty('${it.idProd}')">−</button><strong>${it.qty}</strong><button onclick="incQty('${it.idProd}')">+</button></div>
                    <div class='right'><strong class="price">${fmt.format(it.precio*it.qty)}</strong></div>`;
     cont.appendChild(row);
@@ -332,7 +312,7 @@ function decQty(id){ const it=carro.find(x=>x.idProd===id); if(!it) return; it.q
 function calcTotals(){ const ivaRate=store.get('iva',19); const neto=carro.reduce((s,i)=>s+i.precio*i.qty,0); const iva=Math.round(neto*ivaRate/100); const total=neto+iva; return {neto,iva,total,ivaRate}; }
 function updateTotals(){ const t=calcTotals(); $('neto').textContent=fmt.format(t.neto); $('iva').textContent=fmt.format(t.iva); $('total').textContent=fmt.format(t.total); }
 
-// Recibo imagen (pedido number smaller)
+// Recibo imagen
 function drawReceiptToCanvas(v){
   const W=1120, H= Math.max(740, 400 + v.items.length*42);
   const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H;
@@ -352,7 +332,7 @@ function drawReceiptToCanvas(v){
   ctx.fillStyle=fg; ctx.textAlign='center';
   ctx.font='16px Arial'; ctx.fillText('R.U.T.: 77.934.268-9', boxX+boxW/2, boxY+28);
   ctx.font='bold 18px Arial'; ctx.fillText('N° DE PEDIDO', boxX+boxW/2, boxY+58);
-  ctx.font='bold 24px Arial'; ctx.fillText(String(v.correlativo).padStart(4,'0'), boxX+boxW/2, boxY+92); /* smaller than before */
+  ctx.font='bold 22px Arial'; ctx.fillText(String(v.correlativo).padStart(4,'0'), boxX+boxW/2, boxY+92);
   ctx.textAlign='left';
   ctx.fillStyle=fg; ctx.font='14px Arial'; ctx.fillText('Fecha de Emisión', boxX, boxY+150);
   ctx.font='bold 14px Arial'; ctx.fillText(v.fecha, boxX+160, boxY+150);
@@ -396,13 +376,35 @@ function drawReceiptToCanvas(v){
 }
 async function shareReceiptImage(v){
   const canvas = drawReceiptToCanvas(v);
-  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-  const file = new File([blob], `Pedido_${String(v.correlativo).padStart(4,'0')}.png`, {type:'image/png'});
-  if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file], title:'Pedido', text:`Pedido N° ${String(v.correlativo).padStart(4,'0')}`}); }catch(e){} }
-  else { const url=URL.createObjectURL(file); const a=document.createElement('a'); a.href=url; a.download=file.name; a.click(); URL.revokeObjectURL(url); }
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
+  const file = new File([blob], `Pedido_${String(v.correlativo).padStart(4,'0')}.jpg`, {type:'image/jpeg'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file], title:'Pedido', text:`Pedido N° ${String(v.correlativo).padStart(4,'0')}`}); }catch(e){}
+  } else {
+    const url=URL.createObjectURL(file); const a=document.createElement('a'); a.href=url; a.download=file.name; a.click(); URL.revokeObjectURL(url);
+  }
+}
+// "PDF": abre una ventana imprimible con la imagen (iOS/Android/desktop => Guardar como PDF)
+async function generarPDFDesdeVenta(v){
+  const canvas = drawReceiptToCanvas(v);
+  const dataURL = canvas.toDataURL('image/jpeg',0.95);
+  const w = window.open('', '_blank');
+  if(!w){ alert('Desbloquea las ventanas emergentes para generar el PDF.'); return; }
+  w.document.write(`<!doctype html><title>Pedido ${String(v.correlativo).padStart(4,'0')}</title>
+    <style>body{margin:0;padding:0;text-align:center;background:#fff} img{max-width:100%;height:auto}</style>
+    <img src="${dataURL}" alt="Pedido">`);
+  w.document.close(); w.focus(); w.print();
+}
+async function generarPDFActual(){
+  if(carro.length===0){ alert('Agrega productos al carro.'); return; }
+  const nombre=($('cliente').value||'').trim();
+  if(!nombre){ alert('Ingresa el nombre del cliente.'); return; }
+  const t=calcTotals();
+  const fechaUI = $('fechaHora').value || new Date().toISOString().slice(0,16).replace('T',' ');
+  const v={ correlativo: (store.get('nextCorrelativo',0)+1), fecha:fechaUI.replace('T',' '), cliente:nombre, items:carro.map(i=>({nombre:i.nombre,precio:i.precio,cantidad:i.qty})), neto:t.neto, iva:t.iva, total:t.total, ivaRate:t.ivaRate };
+  await generarPDFDesdeVenta(v);
 }
 
-// Overlay (solo desde Vender)
 function showSuccess(){
   const o=$('successOverlay'); o.style.display='flex';
   setTimeout(()=>{ o.style.display='none'; }, 1100);
@@ -411,7 +413,7 @@ function showSuccess(){
 async function compartirYGuardar(){
   if(carro.length===0){ alert('Agrega productos al carro.'); return; }
   const nombre=($('cliente').value||'').trim();
-  if(!nombre){ alert('Ingresa el nombre del cliente.'); return; } // cliente obligatorio
+  if(!nombre){ alert('Ingresa el nombre del cliente.'); return; } // obligatorio
   const ventas=store.get('ventas',[]);
   const next=store.get('nextCorrelativo',0);
   const correlativo=next+1;
@@ -420,12 +422,12 @@ async function compartirYGuardar(){
   const v={ correlativo, fecha:fechaUI.replace('T',' '), cliente:nombre, items:carro.map(i=>({nombre:i.nombre,precio:i.precio,cantidad:i.qty})), neto:t.neto, iva:t.iva, total:t.total, ivaRate:t.ivaRate };
   ventas.push(v); store.set('ventas',ventas); store.set('nextCorrelativo',correlativo);
   await shareReceiptImage(v);
-  showSuccess(); // solo aquí
+  showSuccess();
   limpiar(); renderHistorial();
 }
 function limpiar(){ carro=[]; $('cliente').value=''; const now=new Date(); const tz=now.getTimezoneOffset()*60000; $('fechaHora').value=new Date(now - tz).toISOString().slice(0,16); updateTotals(); renderCarro(); }
 
-// Historial (SIN eliminar por swipe) + filtro
+// Historial + detalle alineado y botón Ver verde
 function ventaCardHTML(v){
   const corr = String(v.correlativo).padStart(4,'0');
   return `
@@ -441,23 +443,16 @@ function ventaCardHTML(v){
     </div>`;
 }
 function renderVentaDetalleHTML(v){
-  const items=v.items.map(i=>`<div style="display:flex;justify-content:space-between;"><span>${i.nombre} · ${i.cantidad} x ${fmt.format(i.precio)}</span><strong>${fmt.format(i.precio*i.cantidad)}</strong></div>`).join('');
+  const items=v.items.map(i=>`<div class="detail-row"><div>${i.nombre} · ${i.cantidad} x</div><div class="u">${fmt.format(i.precio)}</div><div class="s"><strong>${fmt.format(i.precio*i.cantidad)}</strong></div></div>`).join('');
   return `<div>
     <div class="muted">Cliente: ${v.cliente}</div>
     ${items}
     <hr/>
-    <div style="display:flex;justify-content:space-between;"><span>Neto</span><strong>${fmt.format(v.neto)}</strong></div>
-    <div style="display:flex;justify-content:space-between;"><span>IVA (${v.ivaRate}%)</span><strong>${fmt.format(v.iva)}</strong></div>
-    <div style="display:flex;justify-content:space-between;"><span>Total</span><strong>${fmt.format(v.total)}</strong></div>
+    <div class="detail-row"><div>Neto</div><div></div><div class="s"><strong>${fmt.format(v.neto)}</strong></div></div>
+    <div class="detail-row"><div>IVA (${v.ivaRate}%)</div><div></div><div class="s"><strong>${fmt.format(v.iva)}</strong></div></div>
+    <div class="detail-row"><div><strong>Total</strong></div><div></div><div class="s"><strong>${fmt.format(v.total)}</strong></div></div>
     <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-      <button class="btn icon-btn" onclick="compartirDesdeHist(${v.correlativo})" title="Compartir" aria-label="Compartir">
-        <svg class="icon-share" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <circle cx="5" cy="12" r="3"></circle>
-          <circle cx="19" cy="5" r="3"></circle>
-          <circle cx="19" cy="19" r="3"></circle>
-          <path d="M7.7 10.7l7.6-4.4M7.7 13.3l7.6 4.4" stroke="currentColor" stroke-width="2" fill="none"></path>
-        </svg>
-      </button>
+      <button class="btn btn--small" onclick="compartirDesdeHist(${v.correlativo})" title="Compartir" aria-label="Compartir">Compartir</button>
     </div>
   </div>`;
 }
@@ -484,7 +479,7 @@ function toggleVer(c){ const el=$('exp-'+c); if(el) el.classList.toggle('hidden'
 async function compartirDesdeHist(c){
   const ventas=store.get('ventas',[]); const v=ventas.find(x=>x.correlativo===c); if(!v) return;
   await shareReceiptImage(v);
-  // NO showSuccess aquí
+  // No success overlay aquí
 }
 
 // Productos
