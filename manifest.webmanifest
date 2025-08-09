@@ -1,10 +1,10 @@
 {
-  "name": "MiniBoleta",
-  "short_name": "MiniBoleta",
+  "name": "Mis Ventas",
+  "short_name": "Mis Ventas",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0B1324",
-  "theme_color": "#0F172A",
+  "background_color": "#0b1324",
+  "theme_color": "#0f172a",
   "icons": [
     {
       "src": "icon-192.png",
