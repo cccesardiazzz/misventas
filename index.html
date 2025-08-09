@@ -85,7 +85,7 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
     <h2 style="margin:6px 0 10px;">Bienvenido(a)</h2>
     <p class="muted" style="margin-top:0">Inicia sesión con tu RUT y PIN de 6 dígitos o crea una cuenta.</p>
     <div id="loginForm">
-      <label>RUT</label><input id="login-rut" placeholder="12.345.678-9">
+      <label>RUT</label><input id="login-rut" placeholder="12345678-9">
       <label style="margin-top:8px;">PIN (6 dígitos)</label><input id="login-pin" type="password" inputmode="numeric" pattern="\\d{6}" placeholder="••••••" maxlength="6">
       <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px">
         <button class="btn" onclick="doLogin()">Entrar</button>
@@ -95,8 +95,8 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
     </div>
 
     <div id="registerForm" class="hidden">
-      <label>Nombre y Apellido</label><input id="reg-name" placeholder="Ej: Jorge Díaz">
-      <label style="margin-top:8px;">RUT</label><input id="reg-rut" placeholder="12.345.678-9">
+      <label>Nombre y Apellido</label><input id="reg-name" placeholder="Ej: César Díaz">
+      <label style="margin-top:8px;">RUT</label><input id="reg-rut" placeholder="12345678-9">
       <label style="margin-top:8px;">PIN (6 dígitos)</label><input id="reg-pin" type="password" inputmode="numeric" pattern="\\d{6}" placeholder="••••••" maxlength="6">
       <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px">
         <button class="btn" onclick="doRegister()">Crear cuenta</button>
@@ -110,7 +110,7 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
   <section id="view-vender" class="hidden">
     <div class="card">
       <label>Nombre del Cliente</label>
-      <input id="cliente" placeholder="Ej: Jorge Díaz">
+      <input id="cliente" placeholder="Ej: César Díaz">
     </div>
     <div class="card">
       <label>Fecha y hora</label>
@@ -142,7 +142,7 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
   <section id="view-historial" class="hidden">
     <div class="card">
       <label>Buscar por N° o cliente</label>
-      <input id="buscar" placeholder="Ej: 123 o Juan" oninput="aplicarFiltro()">
+      <input id="buscar" placeholder="Ej: 0123 o César" oninput="aplicarFiltro()">
     </div>
     <div id="historial" class="list"></div>
   </section>
@@ -201,18 +201,25 @@ function markThemeButtons(t){ ['btn-light','btn-dark'].forEach(id=>{const el=$(i
 function setThemeSel(t){ setTheme(t); markThemeButtons(t); }
 applyTheme(); markThemeButtons(localStorage.getItem('theme')||'light');
 
-// ---------- RUT: normaliza, DV y formato ----------
-function normalizaRut(rut){ return (rut||'').replace(/\\./g,'').replace(/-/g,'').trim().toUpperCase(); }
-function dvRut(num){ let s=0, m=2; for(let i=num.length-1;i>=0;i--){ s+=parseInt(num[i],10)*m; m=m===7?2:m+1; } const r=11-(s%11); return r===11?'0':(r===10?'K':String(r)); }
-function validaRut(rutFmt){ const r=normalizaRut(rutFmt); if(r.length<2) return false; const cuerpo=r.slice(0,-1); const dv=r.slice(-1); return dvRut(cuerpo)===dv; }
-function formateaRut(rut){ const r=normalizaRut(rut); if(r.length===0) return ''; const cuerpo=r.slice(0,-1); const dv=r.slice(-1); let f=''; let cnt=0; for(let i=cuerpo.length-1;i>=0;i--){ f=cuerpo[i]+f; cnt++; if(cnt===3 && i>0){ f='.'+f; cnt=0; } } return f + '-' + dv; }
-
-// Autoformato en inputs
-function attachRutMask(id){ const el=$(id); if(!el) return; el.addEventListener('input', ()=>{ const raw=el.value; const r=normalizaRut(raw); if(r.length<=9){ el.value=formateaRut(r); } }); }
+// ---------- RUT: autoformato (sin puntos, con guion automático) ----------
+function formatRutHyphenOnly(raw){
+  let r = (raw||'').toUpperCase().replace(/[^0-9K]/g,'');
+  if(r.length<=1) return r;
+  const cuerpo = r.slice(0, -1);
+  const dv = r.slice(-1);
+  return cuerpo + '-' + dv;
+}
+function attachRutMask(id){
+  const el=$(id); if(!el) return;
+  el.addEventListener('input', ()=>{
+    const cleaned = (el.value||'').toUpperCase().replace(/[^0-9K]/g,'');
+    el.value = formatRutHyphenOnly(cleaned);
+  });
+}
 
 const company = { nombre:"MERCADITO QUILICURA SPA", giro:"VENTA DE TODO TIPO DE ALIMENTOS", direccion:"AV. LAS TORRES SUR 191 A", comuna:"Quilicura", ciudad:"Santiago", region:"Región Metropolitana de Santiago", rut:"77.934.268-9" };
 
-// Users: {rut, pin, name} (rut normalizado)
+// Users: {rut, pin, name} (rut interno sin guion/puntos)
 function users(){ try{return JSON.parse(localStorage.getItem('users_rutpin'))||[]}catch{return[]} }
 function saveUsers(arr){ localStorage.setItem('users_rutpin', JSON.stringify(arr)); }
 function setSession(u){ localStorage.setItem('session', JSON.stringify(u)); }
@@ -222,11 +229,10 @@ function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerFor
 
 function doRegister(){
   const name=$('reg-name').value.trim();
-  const rutInput=$('reg-rut').value;
+  const rutMasked=$('reg-rut').value;
   const pin=$('reg-pin').value.trim();
-  if(!name||!rutInput||!/^\\d{6}$/.test(pin)) return alert('Completa nombre, RUT y un PIN de 6 dígitos.');
-  if(!validaRut(rutInput)){ $('reg-hint').textContent='RUT inválido (revise dígito verificador).'; return; }
-  const rut=normalizaRut(rutInput);
+  if(!name||!rutMasked||!/^\\d{6}$/.test(pin)) return alert('Completa nombre, RUT y un PIN de 6 dígitos.');
+  const rut= (rutMasked||'').toUpperCase().replace(/[^0-9K]/g,''); // clave interna
   const u=users();
   if(u.some(x=>(x.rut||'')===rut)) return alert('Ese RUT ya está registrado.');
   u.push({rut, pin, name}); saveUsers(u); setSession({rut, name});
@@ -234,10 +240,9 @@ function doRegister(){
 }
 
 function doLogin(){
-  const rutInput=$('login-rut').value;
+  const rutMasked=$('login-rut').value;
   const pin=$('login-pin').value.trim();
-  if(!validaRut(rutInput)){ $('login-hint').textContent='RUT inválido.'; alert('RUT inválido'); return; }
-  const rut=normalizaRut(rutInput);
+  const rut= (rutMasked||'').toUpperCase().replace(/[^0-9K]/g,'');
   const u = users().find(x=>(x.rut||'')===rut && (x.pin||'')===pin);
   if(!u){ $('login-hint').textContent='RUT o PIN inválidos. El PIN debe ser de 6 dígitos.'; alert('No se pudo iniciar sesión'); return; }
   setSession({rut:u.rut, name:u.name}); bootApp();
@@ -248,7 +253,6 @@ function logout(){
   ['vender','historial','productos','ajustes'].forEach(x=>{ const view=$('view-'+x); if(view) view.classList.add('hidden'); });
   $('appHeader').classList.add('hidden');
   $('view-auth').classList.remove('hidden');
-  // limpiar campos de login
   $('login-pin').value=''; $('login-rut').value='';
 }
 
@@ -264,7 +268,7 @@ const defaults={ iva:19, productos:[
   {id:crypto.randomUUID(), nombre:'Azúcar 1kg', precio:1200},
   {id:crypto.randomUUID(), nombre:'Fideos 400g', precio:900},
   {id:crypto.randomUUID(), nombre:'Leche 1L', precio:1100},
-], ventas:[], nextCorrelativo:0 }; // empieza en 0 -> primer pedido será 0001
+], ventas:[], nextCorrelativo:0 };
 
 let carro=[];
 
@@ -325,7 +329,7 @@ function decQty(id){ const it=carro.find(x=>x.idProd===id); if(!it) return; it.q
 function calcTotals(){ const ivaRate=store.get('iva',19); const neto=carro.reduce((s,i)=>s+i.precio*i.qty,0); const iva=Math.round(neto*ivaRate/100); const total=neto+iva; return {neto,iva,total,ivaRate}; }
 function updateTotals(){ const t=calcTotals(); $('neto').textContent=fmt.format(t.neto); $('iva').textContent=fmt.format(t.iva); $('total').textContent=fmt.format(t.total); }
 
-// Recibo imagen (con correlativo 4 dígitos)
+// Recibo imagen
 function drawReceiptToCanvas(v){
   const W=1120, H= Math.max(740, 400 + v.items.length*42);
   const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H;
@@ -409,7 +413,7 @@ async function compartirYGuardar(){
 }
 function nuevaVenta(){ carro=[]; $('cliente').value=''; const now = new Date(); const tz = now.getTimezoneOffset()*60000; $('fechaHora').value=new Date(now - tz).toISOString().slice(0,16); updateTotals(); renderCarro(); }
 
-// Historial + filtro (muestra correlativo 4 dígitos)
+// Historial + filtro
 function ventaCardHTML(v){
   const corr = String(v.correlativo).padStart(4,'0');
   return `
