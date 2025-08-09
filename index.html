@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -10,12 +11,13 @@
     :root{
       --bg:#eef0f4; --surface:#ffffff; --text:#0b1220; --muted:#687182;
       --border:#E5E7EB; --soft:#f3f4f6; --radius:16px; --shadow:0 6px 22px rgba(2,6,23,.06);
-      --btn:#000; --btnText:#fff;
+      --btn:#000000; --btnText:#ffffff; --btnBorder:#000000;
+      --green:#10a37f; --red:#e11d48;
     }
     [data-theme="dark"]{
       --bg:#0b1220; --surface:#0f172a; --text:#eef0f4; --muted:#B7C1D1;
       --border:#1f2937; --soft:#111827; --shadow:0 6px 22px rgba(0,0,0,.5);
-      --btn:#000; --btnText:#fff;
+      --btn:#007BFF; --btnText:#ffffff; --btnBorder:#007BFF;
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial,sans-serif;color:var(--text)}
@@ -25,8 +27,8 @@
     .logo-title{font-size:40px;font-weight:900;letter-spacing:.2px}
     .right-actions{display:flex;gap:10px;align-items:center}
     .circle{width:40px;height:40px;border-radius:999px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--text);font-weight:900;cursor:pointer}
-    nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px} /* 3 tabs */
-    .btn,.tab{appearance:none;border:1px solid var(--btn);background:var(--btn);color:var(--btnText);padding:16px 16px;border-radius:999px;font-weight:900;text-align:center;font-size:16px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
+    .btn,.tab{appearance:none;border:2px solid var(--btnBorder);background:var(--btn);color:var(--btnText);padding:12px 16px;border-radius:999px;font-weight:900;text-align:center;font-size:16px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .tab.active{filter:brightness(0.92)}
     .container{max-width:980px;margin:0 auto;padding:12px 16px}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
@@ -45,7 +47,7 @@
     .sheet .handle{width:50px;height:6px;background:#e5e7eb;border-radius:999px;margin:10px auto}
     .sheet .body{padding:8px 14px 16px;overflow:auto;max-height:60vh}
     .sheet .item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
-    .theme-toggle{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end}
   </style>
 </head>
 <body>
@@ -66,7 +68,6 @@
   </header>
 
   <main class="container">
-    <!-- PRE-AUTH -->
     <section id="view-auth" class="card" style="max-width:420px;margin:28px auto">
       <h2 style="margin:6px 0 10px;">Bienvenido(a)</h2>
       <p class="muted" style="margin-top:0">Inicia sesión o regístrate para usar la app.</p>
@@ -91,11 +92,14 @@
       </div>
     </section>
 
-    <!-- Vender -->
     <section id="view-vender" class="hidden">
       <div class="card">
         <label>Nombre del Cliente</label>
         <input id="cliente" placeholder="Ej: Jorge Díaz">
+      </div>
+      <div class="card">
+        <label>Fecha y hora</label>
+        <input id="fechaHora" type="datetime-local">
       </div>
       <div class="card">
         <label>Seleccionar el producto</label>
@@ -106,22 +110,23 @@
         <div id="carro" class="cart"><span class="muted">Sin productos aún.</span></div>
       </div>
       <div class="card">
+        <div class="title-sm" style="margin-bottom:8px;">Resumen</div>
         <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>Subtotal:</span><strong id="neto">$0</strong></div>
         <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>IVA (<span id="iva-rate">19</span>%)</span><strong id="iva">$0</strong></div>
         <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>Total:</span><strong id="total">$0</strong></div>
-        <div style="display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px;">
-          <button class="btn" onclick="compartirYGuardar()">Compartir y Guardar</button>
-          <button class="btn" onclick="nuevaVenta()">Nueva Venta</button>
+      </div>
+      <div class="card">
+        <div class="row-actions">
+          <button id="btnCompartir" class="btn">Compartir y Guardar</button>
+          <button id="btnNueva" class="btn">Nueva Venta</button>
         </div>
       </div>
     </section>
 
-    <!-- Historial -->
     <section id="view-historial" class="hidden">
       <div id="historial" class="list"></div>
     </section>
 
-    <!-- Productos -->
     <section id="view-productos" class="hidden">
       <div class="card">
         <div class="title-sm" style="margin-bottom:8px;">Nuevo producto</div>
@@ -135,11 +140,10 @@
       </div>
     </section>
 
-    <!-- Ajustes (desde avatar) -->
     <section id="view-ajustes" class="hidden">
       <div class="card">
         <div class="title-sm" style="margin-bottom:8px;">Tema</div>
-        <div class="theme-toggle">
+        <div class="row-actions">
           <button id="btn-light" class="btn" onclick="setThemeSel('light')">☀ Claro</button>
           <button id="btn-dark" class="btn" onclick="setThemeSel('dark')">🌙 Oscuro</button>
         </div>
@@ -155,7 +159,6 @@
     </section>
   </main>
 
-  <!-- bottom sheet picker -->
   <div class="sheet" id="sheet"><div class="handle"></div><div class="body" id="sheetBody"></div></div>
 
   <script>
@@ -163,19 +166,18 @@
     const fmt = new Intl.NumberFormat('es-CL',{ style:'currency', currency:'CLP', maximumFractionDigits:0 });
     function applyTheme(){ const t=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme', t==='dark'?'dark':'light'); }
     function setTheme(t){ localStorage.setItem('theme', t); applyTheme(); }
-    function setThemeSel(t){ setTheme(t); const a=$('btn-light'), b=$('btn-dark'); if(a&&b){ a.style.filter=t==='light'?'brightness(0.92)':'none'; b.style.filter=t==='dark'?'brightness(0.92)':'none'; } }
+    function setThemeSel(t){ setTheme(t); ['btn-light','btn-dark'].forEach(id=>{const el=$(id); if(el) el.style.filter='none';}); const sel=t==='dark'?'btn-dark':'btn-light'; if($(sel)) $(sel).style.filter='brightness(0.92)'; }
     applyTheme();
 
     const company = { nombre:"MERCADITO QUILICURA SPA", giro:"VENTA DE TODO TIPO DE ALIMENTOS", direccion:"AV. LAS TORRES SUR 191 A", comuna:"Quilicura", ciudad:"Santiago", region:"Región Metropolitana de Santiago", rut:"77.934.268-9" };
 
-    // Auth + users
     function users(){ try{return JSON.parse(localStorage.getItem('users'))||[]}catch{return[]} }
     function saveUsers(arr){ localStorage.setItem('users', JSON.stringify(arr)); }
     function setSession(u){ localStorage.setItem('session', JSON.stringify(u)); }
     function getSession(){ try{return JSON.parse(localStorage.getItem('session'))}catch{return null} }
 
     function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerForm').classList.toggle('hidden'); }
-    function normalizaRut(rut){ return rut.replace(/\\./g,'').replace(/-/g,'').trim().toUpperCase(); }
+    function normalizaRut(rut){ return rut.replace(/\./g,'').replace(/-/g,'').trim().toUpperCase(); }
     function doRegister(){
       const name=$('reg-name').value.trim();
       const rut=normalizaRut($('reg-rut').value||'');
@@ -194,12 +196,11 @@
       const pass=$('login-pass').value;
       const u=users().find(x=>x.email===email && x.rut===rut && x.pass===pass);
       if(!u) return alert('Credenciales inválidas');
-      setSession({id:u.id,name:u.name,email:u.email,rut:u.rut});
+      setSession({id=u.id,name=u.name,email=u.email,rut=u.rut});
       bootApp();
     }
     function logout(){ localStorage.removeItem('session'); location.reload(); }
 
-    // Per-user namespaced store
     function nsKey(k){ const s=getSession(); const uid=s?.id||'anon'; return uid+':'+k; }
     const store={ get(k,def){ try{return JSON.parse(localStorage.getItem(nsKey(k)))??def}catch{return def} }, set(k,v){ localStorage.setItem(nsKey(k), JSON.stringify(v)); } };
 
@@ -216,10 +217,14 @@
     function bootApp(){
       for(const [k,v] of Object.entries(defaults)){ if(store.get(k)==null) store.set(k,v); }
       $('iva-rate').textContent=store.get('iva',19); $('iva-input').value=store.get('iva',19);
+      const now = new Date(); const tz = now.getTimezoneOffset()*60000; const localISO = new Date(now - tz).toISOString().slice(0,16);
+      $('fechaHora').value = localISO;
       renderCatalogo(); renderPickerList(); renderCarro(); renderHistorial();
       const s=getSession(); const initials=s?.name?.split(' ').map(x=>x[0]?.toUpperCase()).slice(0,2).join('')||'?'; $('avatarText').textContent=initials;
       $('appHeader').classList.remove('hidden'); $('view-auth').classList.add('hidden'); showView('vender');
       if('serviceWorker' in navigator){ navigator.serviceWorker.register('./service-worker.js'); }
+      $('btnCompartir').onclick = compartirYGuardar;
+      $('btnNueva').onclick = nuevaVenta;
     }
 
     function showView(v){
@@ -230,7 +235,6 @@
       if(v==='historial') renderHistorial(); if(v==='productos') renderCatalogo();
     }
 
-    // Picker
     function openPicker(){ $('sheet').classList.add('open'); }
     function closePicker(){ $('sheet').classList.remove('open'); }
     function renderPickerList(){
@@ -244,7 +248,6 @@
     }
     function addFromPicker(id){ agregarAlCarro(id); closePicker(); }
 
-    // Carro
     function agregarAlCarro(id){
       const prod=store.get('productos',[]).find(x=>x.id===id); if(!prod) return;
       const ex=carro.find(x=>x.idProd===id); if(ex) ex.qty+=1; else carro.push({idProd:id,nombre:prod.nombre,precio:prod.precio,qty:1}); renderCarro();
@@ -262,58 +265,65 @@
     function calcTotals(){ const ivaRate=store.get('iva',19); const neto=carro.reduce((s,i)=>s+i.precio*i.qty,0); const iva=Math.round(neto*ivaRate/100); const total=neto+iva; return {neto,iva,total,ivaRate}; }
     function updateTotals(){ const t=calcTotals(); $('neto').textContent=fmt.format(t.neto); $('iva').textContent=fmt.format(t.iva); $('total').textContent=fmt.format(t.total); }
 
-    // Imagen del comprobante
+    // Imagen estilo "foto 1" (sin código de barras)
     function drawReceiptToCanvas(v){
-      const W=900, H= Math.max(620, 320 + v.items.length*40);
+      const W=1120, H= Math.max(740, 400 + v.items.length*42);
       const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H;
       const ctx = canvas.getContext('2d');
-      const bg = '#ffffff'; const fg = '#111111'; const line='#0aa36e';
+      const bg = '#ffffff'; const fg = '#0b1220'; const green = '#13A37E'; const grid = '#cfe9df';
+      const money = n => new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n);
       ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle=fg; ctx.font='bold 22px Arial';
-      // Header left
-      let x=40, y=50;
-      ctx.fillText(company.nombre, x, y); y+=26;
+      // Company left
+      let x=70, y=120;
+      ctx.fillStyle=fg; ctx.font='bold 22px Arial'; ctx.fillText(company.nombre, x, y); y+=28;
       ctx.font='16px Arial'; ctx.fillText('Giro: '+company.giro, x, y); y+=22;
       ctx.fillText('Dirección: '+company.direccion, x, y); y+=22;
-      ctx.fillText(company.comuna+', '+company.ciudad+', '+company.region, x, y);
-      // Extra spacing then date
-      ctx.font='16px Arial';
-      ctx.fillText('Fecha de Emisión: '+v.fecha, x, y+28);
-      // Correlativo right
-      ctx.textAlign='right'; ctx.font='bold 30px Arial';
-      ctx.fillText('N° '+v.correlativo, W-40, 60);
-      ctx.font='16px Arial'; ctx.fillText('RUT: '+company.rut, W-40, 88);
-      ctx.textAlign='left';
-      // Table header
-      ctx.strokeStyle=line; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.moveTo(30,150); ctx.lineTo(W-30,150); ctx.stroke();
-      ctx.font='bold 16px Arial';
-      ctx.fillText('Nombre', 40, 175);
-      ctx.fillText('Cant.', 520, 175);
-      ctx.fillText('P. Unitario', 600, 175);
-      ctx.fillText('Subtotal', 740, 175);
-      ctx.beginPath(); ctx.moveTo(30,185); ctx.lineTo(W-30,185); ctx.stroke();
+      ctx.fillText('Comuna: '+company.comuna, x, y); y+=22;
+      ctx.fillText('Ciudad: '+company.ciudad, x, y); y+=22;
+      ctx.fillText('Región: '+company.region, x, y);
+      // Right red box
+      const boxX = W-380, boxY=90, boxW=300, boxH=120;
+      ctx.strokeStyle='#e74c3c'; ctx.lineWidth=3; ctx.strokeRect(boxX, boxY, boxW, boxH);
+      ctx.fillStyle=fg; ctx.font='16px Arial'; ctx.fillText('R.U.T.: '+company.rut, boxX+16, boxY+30);
+      ctx.font='bold 18px Arial'; ctx.fillText('BOLETA', boxX+16, boxY+60);
+      ctx.font='18px Arial'; ctx.fillText('N° '+v.correlativo, boxX+16, boxY+90);
+      // Fecha
+      ctx.fillStyle=fg; ctx.font='14px Arial'; ctx.fillText('Fecha de Emisión', boxX, boxY+150);
+      ctx.font='bold 14px Arial'; ctx.fillText(v.fecha, boxX+160, boxY+150);
+      // Section header
+      const thY = boxY+190;
+      ctx.fillStyle=green; ctx.fillRect(50, thY, W-100, 28);
+      ctx.fillStyle='#ffffff'; ctx.font='bold 14px Arial'; ctx.fillText('DETALLE DEL DOCUMENTO', 60, thY+19);
+      // Column row
+      const rowStart = thY+40;
+      ctx.fillStyle=grid; ctx.fillRect(50, rowStart, W-100, 28);
+      ctx.fillStyle=fg; ctx.font='bold 13px Arial';
+      ctx.fillText('Nombre', 60, rowStart+18);
+      ctx.fillText('Cantidad', 520, rowStart+18);
+      ctx.fillText('P. Unitario', 660, rowStart+18);
+      ctx.fillText('Subtotal', 820, rowStart+18);
       // Items
-      ctx.font='16px Arial';
-      let iy=210;
-      const money = n => new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n);
+      let iy=rowStart+40;
+      ctx.font='13px Arial'; ctx.fillStyle=fg;
       for(const it of v.items){
-        const name = it.nombre.length>45 ? it.nombre.slice(0,45)+'…' : it.nombre;
-        ctx.fillText(name, 40, iy);
+        ctx.fillStyle= (Math.round((iy-rowStart)/28)%2===0) ? '#f8fbfa' : '#ffffff';
+        ctx.fillRect(50, iy-14, W-100, 28);
+        ctx.fillStyle=fg;
+        const name = it.nombre.length>55 ? it.nombre.slice(0,55)+'…' : it.nombre;
+        ctx.fillText(name, 60, iy);
         ctx.fillText(String(it.cantidad), 520, iy);
-        ctx.fillText(money(it.precio), 600, iy);
-        ctx.fillText(money(it.precio*it.cantidad), 740, iy);
-        iy+=26;
+        ctx.fillText(money(it.precio), 660, iy);
+        ctx.fillText(money(it.precio*it.cantidad), 820, iy);
+        iy+=28;
       }
-      // Summary box: a bit lower, centered text
-      const boxY = iy + 30, boxH = 110, boxW = 320, boxX = W-30-boxW;
-      ctx.strokeStyle=line; ctx.strokeRect(boxX, boxY, boxW, boxH);
-      ctx.font='16px Arial'; ctx.textAlign='center';
-      const cx = boxX + boxW/2;
-      ctx.fillText('Neto: '+money(v.neto), cx, boxY + 32);
-      ctx.fillText('IVA ('+v.ivaRate+'%): '+money(v.iva), cx, boxY + 56);
-      ctx.font='bold 18px Arial';
-      ctx.fillText('Total: '+money(v.total), cx, boxY + 82);
+      // Summary right
+      const sumY = iy + 20, sumX = W-380, sumW = 300, sumH = 110;
+      ctx.strokeStyle=green; ctx.lineWidth=2; ctx.strokeRect(sumX, sumY, sumW, sumH);
+      ctx.font='13px Arial'; ctx.fillStyle=fg; ctx.textAlign='center';
+      const cx = sumX + sumW/2;
+      ctx.fillText('Neto: '+money(v.neto), cx, sumY+32);
+      ctx.fillText('IVA ('+v.ivaRate+'%): '+money(v.iva), cx, sumY+56);
+      ctx.font='bold 15px Arial'; ctx.fillText('Total: '+money(v.total), cx, sumY+80);
       ctx.textAlign='left';
       return canvas;
     }
@@ -331,14 +341,14 @@
       const next=store.get('nextCorrelativo',100);
       const correlativo=next+1;
       const t=calcTotals();
-      const v={ correlativo, fecha:new Date().toISOString().slice(0,16).replace('T',' '), cliente:($('cliente').value||'Consumidor Final'), items:carro.map(i=>({nombre:i.nombre,precio:i.precio,cantidad:i.qty})), neto:t.neto, iva:t.iva, total:t.total, ivaRate:t.ivaRate };
+      const fechaUI = $('fechaHora').value || new Date().toISOString().slice(0,16).replace('T',' ');
+      const v={ correlativo, fecha:fechaUI.replace('T',' '), cliente:($('cliente').value||'Consumidor Final'), items:carro.map(i=>({nombre:i.nombre,precio:i.precio,cantidad:i.qty})), neto:t.neto, iva:t.iva, total:t.total, ivaRate:t.ivaRate };
       ventas.push(v); store.set('ventas',ventas); store.set('nextCorrelativo',correlativo);
       await shareReceiptImage(v);
       nuevaVenta(); renderHistorial();
     }
-    function nuevaVenta(){ carro=[]; $('cliente').value=''; updateTotals(); renderCarro(); }
+    function nuevaVenta(){ carro=[]; $('cliente').value=''; const now = new Date(); const tz = now.getTimezoneOffset()*60000; $('fechaHora').value=new Date(now - tz).toISOString().slice(0,16); updateTotals(); renderCarro(); }
 
-    // Historial
     function renderVentaDetalleHTML(v){
       const items=v.items.map(i=>`<div style="display:flex;justify-content:space-between;"><span>${i.nombre} · ${i.cantidad} x ${fmt.format(i.precio)}</span><strong>${fmt.format(i.precio*i.cantidad)}</strong></div>`).join('');
       return `<div>
@@ -376,14 +386,15 @@
       await shareReceiptImage(v);
     }
 
-    // Productos
     function renderCatalogo(){
       const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre)); const cont=$('catalogo'); cont.innerHTML='';
       for(const p of productos){
         const li=document.createElement('div'); li.className='list-item';
         li.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div>
-                      <div><button class='btn' onclick="editarProducto('${p.id}')">Editar</button>
-                      <button class='btn' onclick="eliminarProducto('${p.id}')">Eliminar</button></div>`;
+                      <div class="row-actions">
+                        <button class='btn' style="background:var(--green);border-color:var(--green)" onclick="editarProducto('${p.id}')">Editar</button>
+                        <button class='btn' style="background:var(--red);border-color:var(--red)" onclick="eliminarProducto('${p.id}')">Eliminar</button>
+                      </div>`;
         cont.appendChild(li);
       }
       renderPickerList();
