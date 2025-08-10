@@ -204,28 +204,15 @@ function attachRutMask(id){ const el=$(id); if(!el) return; el.addEventListener(
 
 const company = { nombre:"MERCADITO QUILICURA SPA", giro:"VENTA DE TODO TIPO DE ALIMENTOS", direccion:"AV. LAS TORRES SUR 191 A", comuna:"Quilicura", ciudad:"Santiago", region:"Metropolitana de Santiago", rut:"77.934.268-9" };
 
-function users(){ try{return JSON.parse(localStorage.getItem('users_rutpin'))||[]}catch{return[]} }
-function saveUsers(arr){ localStorage.setItem('users_rutpin', JSON.stringify(arr)); }
-function setSession(u){ localStorage.setItem('session', JSON.stringify(u)); }
-function getSession(){ try{return JSON.parse(localStorage.getItem('session'))}catch{return null} }
+catch{return[]} }
+catch{return null} }
 function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerForm').classList.toggle('hidden'); }
 
-function doRegister(){
-  const name=$('reg-name').value.trim();
-  const rutMasked=$('reg-rut').value;
-  let pin=($('reg-pin').value||'').replace(/\\D/g,''); 
-  if(!name||!rutMasked||pin.length!==6){ alert('Completa nombre, RUT y un PIN de 6 dígitos.'); return; }
-  const rut=(rutMasked||'').toUpperCase().replace(/[^0-9K]/g,'');
+const rut=(rutMasked||'').toUpperCase().replace(/[^0-9K]/g,'');
   const u=users(); if(u.some(x=>x.rut===rut)){ alert('Ese RUT ya está registrado.'); return; }
   u.push({rut, pin, name}); saveUsers(u); setSession({rut, name}); bootApp();
 }
-function doLogin(){
-  const rutMasked=$('login-rut').value;
-  const pin=($('login-pin').value||'').replace(/\\D/g,''); 
-  const rut=(rutMasked||'').toUpperCase().replace(/[^0-9K]/g,'');
-  const u=users().find(x=>x.rut===rut && x.pin===pin);
-  if(!u){ $('login-hint').textContent='RUT o PIN inválidos. Revisa que el PIN tenga 6 dígitos.'; alert('No se pudo iniciar sesión'); return; }
-  setSession({rut:u.rut, name:u.name}); bootApp();
+setSession({rut:u.rut, name:u.name}); bootApp();
 }
 function logout(){ localStorage.removeItem('session'); ['vender','historial','productos','ajustes'].forEach(x=>$('view-'+x).classList.add('hidden')); $('appHeader').classList.add('hidden'); $('view-auth').classList.remove('hidden'); $('login-pin').value=''; $('login-rut').value=''; }
 attachRutMask('login-rut'); attachRutMask('reg-rut'); attachPinMask('login-pin'); attachPinMask('reg-pin');
@@ -516,6 +503,44 @@ function guardarIVA(){ const val=Number($('iva-input').value||19); if(!(val>=0 &
 function agregarProducto(){ const nombre=($('prod-nombre').value||'').trim(); const precio=Number($('prod-precio').value||'0'); if(!nombre || !(precio>=0)) return alert('Completa nombre y precio.'); const productos=store.get('productos',[]); productos.push({id:crypto.randomUUID(), nombre, precio}); store.set('productos',productos); $('prod-nombre').value=''; $('prod-precio').value=''; renderCatalogo(); }
 function editarProducto(id){ const productos=store.get('productos',[]); const p=productos.find(x=>x.id===id); if(!p) return; const nuevo=prompt('Nuevo precio para '+p.nombre, p.precio); if(nuevo===null) return; const val=Number(nuevo); if(!(val>=0)) return alert('Precio inválido'); p.precio=val; store.set('productos',productos); renderCatalogo(); }
 function eliminarProducto(id){ const productos=store.get('productos',[]).filter(x=>x.id!==id); store.set('productos',productos); renderCatalogo(); }
+
+
+// === Auth helpers (RUT + PIN 6) ===
+function users(){ try{return JSON.parse(localStorage.getItem('users_rutpin'))||[]}catch{return[]} }
+function saveUsers(arr){ localStorage.setItem('users_rutpin', JSON.stringify(arr)); }
+function setSession(u){ localStorage.setItem('session', JSON.stringify(u)); }
+function getSession(){ try{return JSON.parse(localStorage.getItem('session'))}catch{return null} }
+function switchAuth(){ const a=$('loginForm'), b=$('registerForm'); if(a&&b){ a.classList.toggle('hidden'); b.classList.toggle('hidden'); } }
+
+function attachPinMask(id){ const el=$(id); if(!el) return; el.addEventListener('input', ()=>{ el.value=(el.value||'').replace(/\D/g,'').slice(0,6); }); }
+function formatRutHyphenOnly(raw){ let r=(raw||'').toUpperCase().replace(/[^0-9K]/g,''); if(r.length<=1)return r; return r.slice(0,-1)+'-'+r.slice(-1); }
+function attachRutMask(id){ const el=$(id); if(!el) return; el.addEventListener('input', ()=>{ const c=(el.value||'').toUpperCase().replace(/[^0-9K]/g,''); el.value=formatRutHyphenOnly(c); }); }
+
+function doRegister(){
+  const name=($('reg-name')?.value||'').trim();
+  const rutMasked=$('reg-rut')?.value||'';
+  const pin=($('reg-pin')?.value||'').replace(/\D/g,'');
+  if(!name||!rutMasked||pin.length!==6){ alert('Completa nombre, RUT y un PIN de 6 dígitos.'); return; }
+  const rut=rutMasked.toUpperCase().replace(/[^0-9K]/g,'');
+  const u=users(); if(u.some(x=>x.rut===rut)){ alert('Ese RUT ya está registrado.'); return; }
+  u.push({rut, pin, name}); saveUsers(u); setSession({rut, name});
+  if(typeof bootApp==='function'){ bootApp(); } else { location.reload(); }
+}
+function doLogin(){
+  const rutMasked=$('login-rut')?.value||'';
+  const pin=($('login-pin')?.value||'').replace(/\D/g,'');
+  const rut=rutMasked.toUpperCase().replace(/[^0-9K]/g,'');
+  const u=users().find(x=>x.rut===rut && x.pin===pin);
+  if(!u){ const hint=$('login-hint'); if(hint) hint.textContent='RUT o PIN inválidos. Asegúrate que el PIN tenga 6 dígitos.'; alert('No se pudo iniciar sesión'); return; }
+  setSession({rut:u.rut, name:u.name});
+  if(typeof bootApp==='function'){ bootApp(); } else { location.reload(); }
+}
+
+// Attach masks on load
+document.addEventListener('DOMContentLoaded', ()=>{
+  attachRutMask('login-rut'); attachPinMask('login-pin');
+  attachRutMask('reg-rut'); attachPinMask('reg-pin');
+});
 
 (function(){ const s=getSession(); if(s){ bootApp(); } else { $('view-auth').classList.remove('hidden'); } })();
 </script>
