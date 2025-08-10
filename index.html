@@ -203,6 +203,34 @@ applyTheme(); markThemeButtons(localStorage.getItem('theme')||'light');
 function USERS(){ try{return JSON.parse(localStorage.getItem('usuarios'))||[]}catch{return[]} }
 function SAVE_USERS(arr){ localStorage.setItem('usuarios', JSON.stringify(arr)); }
 
+function normalizeAllUsers(){
+  // Normaliza 'usuarios'
+  let arr = USERS();
+  let changed=false;
+  arr = arr.map(u=>{
+    const rut = normalizeRutStorage(u.rut);
+    const pin = normalizePin(u.pin);
+    const name = (u.name||'').trim();
+    if(rut!==u.rut || pin!==u.pin || name!==u.name){ changed=true; }
+    return Object.assign({}, u, {rut, pin, name});
+  });
+  if(changed) SAVE_USERS(arr);
+  // Normaliza 'users_rutpin' legacy
+  try{
+    const legacyRaw = JSON.parse(localStorage.getItem('users_rutpin'))||[];
+    let changedL=false;
+    const normLegacy = legacyRaw.map(u=>{
+      const rut = normalizeRutStorage(u.rut);
+      const pin = normalizePin(u.pin);
+      const name = (u.name||'').trim();
+      if(rut!==u.rut || pin!==u.pin || name!==u.name){ changedL=true; }
+      return Object.assign({}, u, {rut, pin, name});
+    });
+    if(changedL) localStorage.setItem('users_rutpin', JSON.stringify(normLegacy));
+  }catch(e){}
+}
+
+
 // --- Compatibilidad con versiones anteriores ---
 function LEGACY_USERS(){ try{return JSON.parse(localStorage.getItem('users_rutpin'))||[]}catch{return[]} }
 function migrateLegacyUserIfNeeded(rut){
@@ -221,18 +249,19 @@ function setSession(u){ localStorage.setItem('session', JSON.stringify(u)); }
 function getSession(){ try{return JSON.parse(localStorage.getItem('session'))}catch{return null} }
 function attachPinMask(id){ const el=$(id); if(!el) return; el.addEventListener('input', ()=>{ el.value=(el.value||'').replace(/\\D/g,'').slice(0,6); }); }
 function formatRutHyphenOnly(raw){ let r=(raw||'').toUpperCase().replace(/[^0-9K]/g,''); if(r.length<=1)return r; return r.slice(0,-1)+'-'+r.slice(-1); }
-function attachRutMask(id){ const el=$(id); if(!el) return; el.addEventListener('input', ()=>{ const c=(el.value||'').toUpperCase().replace(/[^0-9K]/g,''); el.value=formatRutHyphenOnly(c); }); }
+function attachRutMask(id){ const el=$(id); if(!el) return; el.addEventListener('input', ()=>{ const raw=sanitizeRutMaskedInput(el.value); const c=normalizeRutStorage(raw); el.value=formatRutHyphenOnly(c); }); }
 function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerForm').classList.toggle('hidden'); }
 
 function doRegister(){
+  normalizeAllUsers();
   const name=($('reg-name').value||'').trim();
-  const rutMasked=$('reg-rut').value||'';
-  const pin=($('reg-pin').value||'').replace(/\D/g,'');
+  const rutMasked=sanitizeRutMaskedInput($('reg-rut').value||'');
+  const pin=normalizePin($('reg-pin').value||'');
   if(!name||!rutMasked||pin.length!==6){ alert('Completa nombre, RUT y un PIN de 6 dígitos.'); return; }
-  const rut=rutMasked.toUpperCase().replace(/[^0-9K]/g,'');
+  const rut=normalizeRutStorage(rutMasked);
   const all=USERS();
-  const existsNew = all.some(u=>u.rut===rut);
-  const existsLegacy = LEGACY_USERS().some(u=>u.rut===rut);
+  const existsNew = all.some(u=>normalizeRutStorage(u.rut)===rut);
+  const existsLegacy = LEGACY_USERS().some(u=>normalizeRutStorage(u.rut)===rut);
   if(existsNew || existsLegacy){
     alert('Ese RUT ya está registrado. Pasa a "Ya tengo cuenta" e intenta iniciar sesión.');
     $('login-rut').value = formatRutHyphenOnly(rut);
@@ -243,31 +272,36 @@ function doRegister(){
   all.push({rut, pin, name, ventas:[], iva:19, productos:null, nextCorrelativo:0});
   SAVE_USERS(all);
   setSession({rut, name});
-  localStorage.setItem('last_rut', rutMasked);
+  localStorage.setItem('last_rut', formatRutHyphenOnly(rut));
   bootApp();
 }
 
+
 function doLogin(){
-  const rutMasked=$('login-rut').value||'';
-  const pin=($('login-pin').value||'').replace(/\D/g,'');
-  const rut=rutMasked.toUpperCase().replace(/[^0-9K]/g,'');
-  let u = USERS().find(x=>x.rut===rut && x.pin===pin);
+  normalizeAllUsers();
+  const rutMasked=sanitizeRutMaskedInput($('login-rut').value||'');
+  const pin=normalizePin($('login-pin').value||'');
+  const rut=normalizeRutStorage(rutMasked);
+  let u = USERS().find(x=>normalizeRutStorage(x.rut)===rut && normalizePin(x.pin)===pin);
   if(!u){
-    const legacy = LEGACY_USERS().find(x=>x.rut===rut && x.pin===pin);
+    const legacy = LEGACY_USERS().find(x=>normalizeRutStorage(x.rut)===rut && normalizePin(x.pin)===pin);
     if(legacy){
       const migrated = migrateLegacyUserIfNeeded(rut);
       if(migrated){ u = migrated; }
     }
   }
-  if(!u){ $('login-hint').textContent='RUT o PIN inválidos. Verifica que el PIN tenga 6 dígitos.'; return; }
+  if(!u){ $('login-hint').textContent='RUT o PIN inválidos. Recuerda que el PIN debe tener 6 dígitos.'; return; }
   setSession({rut:u.rut, name:u.name||''});
-  localStorage.setItem('last_rut', rutMasked);
+  localStorage.setItem('last_rut', formatRutHyphenOnly(rut));
   bootApp();
 }
+
 
 function logout(){ localStorage.removeItem('session'); ['vender','historial','productos','ajustes'].forEach(x=>$('view-'+x).classList.add('hidden')); $('appHeader').classList.add('hidden'); $('view-auth').classList.remove('hidden'); $('login-pin').value=''; $('login-rut').value=localStorage.getItem('last_rut')||''; }
 
 document.addEventListener('DOMContentLoaded', ()=>{
+  try{ $('login-rut').value = localStorage.getItem('last_rut')||$('login-rut').value; }catch(e){}
+
   attachRutMask('login-rut'); attachPinMask('login-pin');
   attachRutMask('reg-rut'); attachPinMask('reg-pin');
   $('btn-entrar').onclick = doLogin;
@@ -294,6 +328,7 @@ const defaults={ iva:19, productos:[
 let carro=[];
 
 function bootApp(){
+  normalizeAllUsers();
   const s=getSession();
   if(!s){ $('view-auth').classList.remove('hidden'); $('appHeader').classList.add('hidden'); return; }
   // Sembrar defaults por RUT si faltan
