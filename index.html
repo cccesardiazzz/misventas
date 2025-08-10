@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
 <meta name="theme-color" content="#000000"/>
 <title>Mis Ventas — PWA</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -60,8 +60,6 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
 .sheet.open{transform:translateY(0)}
 .sheet .handle{width:50px;height:6px;background:#e5e7eb;border-radius:999px;margin:10px auto;cursor:pointer}
 .sheet .body{padding:8px 14px 16px;overflow:auto;max-height:60vh}
-.sheet .search{position:sticky;top:0;background:var(--surface);padding-bottom:8px}
-.sheet .search input{width:100%;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);font-size:16px;outline:none}
 .sheet .item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
 .sheet .footer{display:none}
 
@@ -191,7 +189,6 @@ input[type="datetime-local"]{appearance:none;-webkit-appearance:none;padding:14p
 <script>
 const $ = id => document.getElementById(id);
 const fmt = new Intl.NumberFormat('es-CL',{ style:'currency', currency:'CLP', maximumFractionDigits:0 });
-function stripAccents(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
 function applyTheme(){ const t=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme', t==='dark'?'dark':'light'); }
 function setTheme(t){ localStorage.setItem('theme', t); applyTheme(); }
 function markThemeButtons(t){ ['btn-light','btn-dark'].forEach(id=>{const el=$(id); if(!el) return; el.style.filter='none'; el.setAttribute('aria-pressed','false');}); const sel = t==='dark'?'btn-dark':'btn-light'; if($(sel)){ $(sel).style.filter='brightness(0.92)'; $(sel).setAttribute('aria-pressed','true'); } }
@@ -284,26 +281,11 @@ function showView(v){
 function openPicker(){ $('sheet').classList.add('open'); $('backdrop').classList.remove('hidden'); }
 function closePicker(){ $('sheet').classList.remove('open'); $('backdrop').classList.add('hidden'); }
 function renderPickerList(){
-  const cont=$('sheetBody'); if(!cont) return; cont.innerHTML='';
-  const header=document.createElement('div'); header.className='search';
-  header.innerHTML=`<input id="sheetSearch" placeholder="Buscar producto..." autofocus inputmode="search" />`;
-  cont.appendChild(header);
-  const listWrap=document.createElement('div'); cont.appendChild(listWrap);
-  function render(q=''){
-    listWrap.innerHTML='';
-    const qn = (typeof stripAccents==='function'?stripAccents(q||''):(q||'')).toLowerCase();
-    const productos=(store.get('productos',[])||[])
-      .sort((a,b)=>a.nombre.localeCompare(b.nombre))
-      .filter(p => (typeof stripAccents==='function'?stripAccents(p.nombre):p.nombre).toLowerCase().includes(qn));
-    for(const p of productos){
-      const row=document.createElement('div'); row.className='item';
-      row.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div><button class='btn' style="background:#10a37f;border-color:#10a37f" onclick="addFromPicker('${p.id}')">Agregar</button>`;
-      listWrap.appendChild(row);
-    }
-  }
-  render('');
-  const sInp = $('sheetSearch'); if(sInp){ sInp.addEventListener('input', e=>render(e.target.value||''), {passive:true}); }
-}</div><div class='muted'>${fmt.format(p.precio)}</div></div><button class='btn' style="background:#10a37f;border-color:#10a37f" onclick="addFromPicker('${p.id}')">Agregar</button>`;
+  const cont=$('sheetBody'); cont.innerHTML='';
+  const productos=store.get('productos',[]).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  for(const p of productos){
+    const row=document.createElement('div'); row.className='item';
+    row.innerHTML=`<div><div class='title-sm'>${p.nombre}</div><div class='muted'>${fmt.format(p.precio)}</div></div><button class='btn' style="background:#10a37f;border-color:#10a37f" onclick="addFromPicker('${p.id}')">Agregar</button>`;
     cont.appendChild(row);
   }
 }
@@ -343,9 +325,9 @@ function drawReceiptToCanvas(v){
   ctx.fillText('Dirección: AV. LAS TORRES SUR 191 A', x, y); y+=22;
   ctx.fillText('Comuna: Quilicura', x, y); y+=22;
   ctx.fillText('Ciudad: Santiago', x, y); y+=22;
-  ctx.fillText('Región: Metropolitana de Santiago', x, y);
+  ctx.fillText('Región: Región Metropolitana de Santiago', x, y);
   const boxX = W-380, boxY=90, boxW=300, boxH=120;
-  ctx.strokeStyle='#E10600'; ctx.lineWidth=3; ctx.strokeRect(boxX, boxY, boxW, boxH);
+  ctx.strokeStyle='#e74c3c'; ctx.lineWidth=3; ctx.strokeRect(boxX, boxY, boxW, boxH);
   ctx.fillStyle=fg; ctx.textAlign='center';
   ctx.font='16px Arial'; ctx.fillText('R.U.T.: 77.934.268-9', boxX+boxW/2, boxY+28);
   ctx.font='bold 18px Arial'; ctx.fillText('N° DE PEDIDO', boxX+boxW/2, boxY+58);
@@ -362,7 +344,7 @@ function drawReceiptToCanvas(v){
   ctx.fillText('Nombre', 60, rowStart+18);
   ctx.fillText('Cantidad', 520, rowStart+18);
   ctx.fillText('P. Unitario', 660, rowStart+18);
-  ctx.textAlign='right'; ctx.fillText('Subtotal', 1040, rowStart+18); ctx.textAlign='left';
+  ctx.fillText('Subtotal', 820, rowStart+18);
   let iy=rowStart+40;
   ctx.font='13px Arial'; ctx.fillStyle=fg;
   for(const it of v.items){
