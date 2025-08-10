@@ -202,6 +202,21 @@ applyTheme(); markThemeButtons(localStorage.getItem('theme')||'light');
 // ==== Auth: usuarios y sesión (RUT + PIN 6) ====
 function USERS(){ try{return JSON.parse(localStorage.getItem('usuarios'))||[]}catch{return[]} }
 function SAVE_USERS(arr){ localStorage.setItem('usuarios', JSON.stringify(arr)); }
+
+// --- Compatibilidad con versiones anteriores ---
+function LEGACY_USERS(){ try{return JSON.parse(localStorage.getItem('users_rutpin'))||[]}catch{return[]} }
+function migrateLegacyUserIfNeeded(rut){
+  const all=USERS();
+  if(all.some(u=>u.rut===rut)) return null;
+  const legacy = LEGACY_USERS().find(u=>u.rut===rut);
+  if(legacy){
+    const migrated = {rut: legacy.rut, pin: legacy.pin, name: legacy.name || '', ventas:[], iva:19, productos:null, nextCorrelativo:0};
+    all.push(migrated); SAVE_USERS(all);
+    return migrated;
+  }
+  return null;
+}
+
 function setSession(u){ localStorage.setItem('session', JSON.stringify(u)); }
 function getSession(){ try{return JSON.parse(localStorage.getItem('session'))}catch{return null} }
 function attachPinMask(id){ const el=$(id); if(!el) return; el.addEventListener('input', ()=>{ el.value=(el.value||'').replace(/\\D/g,'').slice(0,6); }); }
@@ -212,27 +227,44 @@ function switchAuth(){ $('loginForm').classList.toggle('hidden'); $('registerFor
 function doRegister(){
   const name=($('reg-name').value||'').trim();
   const rutMasked=$('reg-rut').value||'';
-  const pin=($('reg-pin').value||'').replace(/\\D/g,'');
+  const pin=($('reg-pin').value||'').replace(/\D/g,'');
   if(!name||!rutMasked||pin.length!==6){ alert('Completa nombre, RUT y un PIN de 6 dígitos.'); return; }
   const rut=rutMasked.toUpperCase().replace(/[^0-9K]/g,'');
   const all=USERS();
-  if(all.some(u=>u.rut===rut)){ alert('Ese RUT ya está registrado.'); return; }
+  const existsNew = all.some(u=>u.rut===rut);
+  const existsLegacy = LEGACY_USERS().some(u=>u.rut===rut);
+  if(existsNew || existsLegacy){
+    alert('Ese RUT ya está registrado. Pasa a "Ya tengo cuenta" e intenta iniciar sesión.');
+    $('login-rut').value = formatRutHyphenOnly(rut);
+    $('login-pin').focus();
+    if($('loginForm').classList.contains('hidden')){ switchAuth(); }
+    return;
+  }
   all.push({rut, pin, name, ventas:[], iva:19, productos:null, nextCorrelativo:0});
   SAVE_USERS(all);
   setSession({rut, name});
   localStorage.setItem('last_rut', rutMasked);
   bootApp();
 }
+
 function doLogin(){
   const rutMasked=$('login-rut').value||'';
-  const pin=($('login-pin').value||'').replace(/\\D/g,'');
+  const pin=($('login-pin').value||'').replace(/\D/g,'');
   const rut=rutMasked.toUpperCase().replace(/[^0-9K]/g,'');
-  const u = USERS().find(x=>x.rut===rut && x.pin===pin);
+  let u = USERS().find(x=>x.rut===rut && x.pin===pin);
+  if(!u){
+    const legacy = LEGACY_USERS().find(x=>x.rut===rut && x.pin===pin);
+    if(legacy){
+      const migrated = migrateLegacyUserIfNeeded(rut);
+      if(migrated){ u = migrated; }
+    }
+  }
   if(!u){ $('login-hint').textContent='RUT o PIN inválidos. Verifica que el PIN tenga 6 dígitos.'; return; }
-  setSession({rut:u.rut, name:u.name});
+  setSession({rut:u.rut, name:u.name||''});
   localStorage.setItem('last_rut', rutMasked);
   bootApp();
 }
+
 function logout(){ localStorage.removeItem('session'); ['vender','historial','productos','ajustes'].forEach(x=>$('view-'+x).classList.add('hidden')); $('appHeader').classList.add('hidden'); $('view-auth').classList.remove('hidden'); $('login-pin').value=''; $('login-rut').value=localStorage.getItem('last_rut')||''; }
 
 document.addEventListener('DOMContentLoaded', ()=>{
